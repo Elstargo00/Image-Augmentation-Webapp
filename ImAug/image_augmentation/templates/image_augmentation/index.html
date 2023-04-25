@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImgAug</title>
+</head>
+<body>
+    <h1>ImgAug</h1>
+    <p>Welcome to the image augmentation app! Here, you can apply various augmentation techniques to your dataset..</p>
+
+
+    <form action="{% url 'process_augmentation' %}" method=POST>
+
+        {% csrf_token %}
+
+        <hr>
+        <label for="random_crop"> Random Crop:</label>
+        <input type="checkbox" name="random_crop" id="random_crop" value="True">
+        <br>
+        <label for="random_crop_width">Width:</label>
+        <input type="text" name="random_crop_width" id="random_crop_width" placeholder="width">
+        <label for="random_crop_height">Height:</label>
+        <input type="text" name="random_crop_height" id="random_crop_height" placeholder="height">
+        <hr>
+
+
+        <label for="horizontal_flip">Horizontal Flip:</label>
+        <input type="checkbox" name="horizontal_flip" id="horizontal_flip" value="True">
+        <br>
+        <label for="horizontal_flip_p">Horizontal Flip Parameter (p):</label>
+        <input type="text" name="horizontal_flip_p" id="horizontal_flip_p" placeholder="p">
+        <hr>
+
+
+        <label for="vertical_fllip">Vertical Flip:</label>
+        <input type="checkbox" name="vertical_flip" id="vertical_flip" value="True">
+        <br>
+        <label for="vertical_flip_p">Vertical Flip Parameter (p):</label>
+        <input type="text" name="vertical_flip_p" id="vertical_flip_p" placeholder="p">
+        <hr>
+
+        <input type="submit" value="Apply Augmentations">
+
+    </form>
+
+</body>
+</html>
