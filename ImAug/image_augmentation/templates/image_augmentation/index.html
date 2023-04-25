@@ -15,20 +15,48 @@
         {% csrf_token %}
 
         <hr>
-        <label for="random_crop"> Random Crop:</label>
+        <label for="affine">Affine:</label>
+        <input type="checkbox" name="affine" id="affine" value="True">
+        <br>
+        <label for="affine_translate_percent">Translate Percent</label>
+        <input type="text" name="affine_translate_percent" id="affine_translate_percent" placeholder="percent">
+        <label for="affine_p">p:</label>
+        <input type="text" name="affine_p" id="affine_p" placeholder="p">
+        <label for="affine_rotate">Rotate</label>
+        <input type="text" name="affine_rotate" id="affine_rotate" placeholder="degree">
+        <hr>
+
+
+        <hr>
+        <label for="random_crop">Random Crop:</label>
         <input type="checkbox" name="random_crop" id="random_crop" value="True">
         <br>
         <label for="random_crop_width">Width:</label>
         <input type="text" name="random_crop_width" id="random_crop_width" placeholder="width">
         <label for="random_crop_height">Height:</label>
         <input type="text" name="random_crop_height" id="random_crop_height" placeholder="height">
+        <label for="random_crop_p">p:</label>
+        <input type="text" name="random_crop_p" id="random_crop_p" placeholder="p">
+        <hr>
+
+
+        <hr>
+        <label for="center_crop"> Center Crop:</label>
+        <input type="checkbox" name="center_crop" id="center_crop" value="True">
+        <br>
+        <label for="center_crop_width">Width:</label>
+        <input type="text" name="center_crop_width" id="center_crop_width" placeholder="width">
+        <label for="random_crop_height">Height:</label>
+        <input type="text" name="center_crop_height" id="center_crop_height" placeholder="height">
+        <label for="center_crop_p">p:</label>
+        <input type="text" name="center_crop_p" id="center_crop_p" placeholder="p">
         <hr>
 
 
         <label for="horizontal_flip">Horizontal Flip:</label>
         <input type="checkbox" name="horizontal_flip" id="horizontal_flip" value="True">
         <br>
-        <label for="horizontal_flip_p">Horizontal Flip Parameter (p):</label>
+        <label for="horizontal_flip_p">p:</label>
         <input type="text" name="horizontal_flip_p" id="horizontal_flip_p" placeholder="p">
         <hr>
 
@@ -36,7 +64,7 @@
         <label for="vertical_fllip">Vertical Flip:</label>
         <input type="checkbox" name="vertical_flip" id="vertical_flip" value="True">
         <br>
-        <label for="vertical_flip_p">Vertical Flip Parameter (p):</label>
+        <label for="vertical_flip_p">p:</label>
         <input type="text" name="vertical_flip_p" id="vertical_flip_p" placeholder="p">
         <hr>
 

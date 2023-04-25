@@ -12,29 +12,67 @@ def index(request):
     return render(request, "image_augmentation/index.html")
 
 
-
 def process_augmentation(request):
     if request.method == "POST":
 
         transforming_list = []
 
-        if bool(request.POST.get("random_crop")):
-            width = int(request.POST.get("random_crop_width"))
-            height = int(request.POST.get("random_crop_height"))
+        
+        if bool(request.POST.get("affine")):
+            translate_percent = float(request.POST.get("affine_translate_percent")) # field check
+            p = request.POST.get("affine_p")
+            if not p:
+                p = 0.5
+            p = float(p)
+            rotate = float(request.POST.get("affine_rotate"))
             transforming_list.append({
-                "format_type": A.RandomCrop,
-                "params": {"width": width, "height": height}
+                "format_type": A.Affine,
+                "params": {"translate_percent": translate_percent, "p": p, "rotate": rotate}
             })
 
+
+        if bool(request.POST.get("random_crop")):
+            width = int(request.POST.get("random_crop_width")) # field check
+            height = int(request.POST.get("random_crop_height")) # field check
+            p = request.POST.get("random_crop_p")
+            if not p:
+                p = 0.5
+            p = float(p) 
+            transforming_list.append({
+                "format_type": A.RandomCrop,
+                "params": {"width": width, "height": height, "p": p}
+            })
+
+
+        if bool(request.POST.get("center_crop")):
+            width = int(request.POST.get("center_crop_width")) # field check
+            height = int(request.POST.get("center_crop_height")) # field check
+            p = request.POST.get("center_crop_p")
+            if not p:
+                p = 0.5
+            p = float(p) 
+            transforming_list.append({
+                "format_type": A.CenterCrop,
+                "params": {"width": width, "height": height, "p": p}
+            })
+
+
         if bool(request.POST.get("horizontal_flip")):
-            p = float(request.POST.get("horizontal_flip_p"))
+            p = request.POST.get("horizontal_flip_p")
+            if not p:
+                p = 0.5
+            p = float(p)
             transforming_list.append({
                 "format_type": A.HorizontalFlip,
                 "params": {"p": p}
             })
 
+
         if bool(request.POST.get("vertical_flip")):
             p = float(request.POST.get("vertical_flip_p"))
+            if not p:
+                p = 0.5
+            p = float(p)
             transforming_list.append({
                 "format_type": A.VerticalFlip,
                 "params": {"p": p}
