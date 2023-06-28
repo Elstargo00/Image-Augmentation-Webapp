@@ -6,6 +6,7 @@ import albumentations as A
 from .DataTransformers.DTStore import TransPack, TransFormat
 from pathlib import Path
 from PIL import Image
+import ast
 
 
 def index(request):
@@ -16,24 +17,29 @@ def process_augmentation(request):
     if request.method == "POST":
 
         transforming_list = []
-
         
         if bool(request.POST.get("affine")):
             translate_percent = float(request.POST.get("affine_translate_percent")) # field check
             p = request.POST.get("affine_p")
+            rotate = float(request.POST.get("affine_rotate"))
+            shear = ast.literal_eval(request.POST.get("affine_shear"))
             if not p:
                 p = 0.5
             p = float(p)
-            rotate = float(request.POST.get("affine_rotate"))
             transforming_list.append({
                 "format_type": A.Affine,
-                "params": {"translate_percent": translate_percent, "p": p, "rotate": rotate}
+                "params": {
+                    "translate_percent": translate_percent,
+                    "p": p,
+                    "rotate": rotate,
+                    "shear": shear
+                }
             })
 
 
         if bool(request.POST.get("random_crop")):
-            width = int(request.POST.get("random_crop_width")) # field check
-            height = int(request.POST.get("random_crop_height")) # field check
+            width = int(float((request.POST.get("random_crop_width")))) # field check
+            height = int(float(request.POST.get("random_crop_height"))) # field check
             p = request.POST.get("random_crop_p")
             if not p:
                 p = 0.5
@@ -45,8 +51,8 @@ def process_augmentation(request):
 
 
         if bool(request.POST.get("center_crop")):
-            width = int(request.POST.get("center_crop_width")) # field check
-            height = int(request.POST.get("center_crop_height")) # field check
+            width = int(float(request.POST.get("center_crop_width"))) # field check
+            height = int(float(request.POST.get("center_crop_height"))) # field check
             p = request.POST.get("center_crop_p")
             if not p:
                 p = 0.5
@@ -75,7 +81,17 @@ def process_augmentation(request):
             p = float(p)
             transforming_list.append({
                 "format_type": A.VerticalFlip,
-                "params": {"p": p}
+                "params": {'p': p}
+            })
+
+        if bool(request.POST.get("togray")):
+            p = float(request.POST.get("togray_p"))
+            if not p:
+                p = 0.5
+            p = float(p)
+            transforming_list.append({
+                "format_type": A.ToGray,
+                "params": {'p': p}
             })
 
 
@@ -83,7 +99,7 @@ def process_augmentation(request):
 
 
         # _____ _____ setup augmented outputs _____ _____
-        fn_suffix = "v2"
+        fn_suffix = "testing"
         outs = Path(f"{settings.MEDIA_ROOT}/augmented_{fn_suffix}")
         image_outs = outs / "images"
         label_outs = outs / "labels"
