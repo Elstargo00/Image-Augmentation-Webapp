@@ -94,12 +94,25 @@ def process_augmentation(request):
                 "params": {'p': p}
             })
 
+        if bool(request.POST.get("gauss_noise")):
+            p = float(request.POST.get("gauss_noise_p"))
+            if not p:
+                p = 0.5
+            mean = float(request.POST.get("gauss_noise_mean"))
+            if not mean:
+                mean = 0
+            var_limit = float(request.POST.get("gauss_noise_var"))
+            transforming_list.append({
+                "format_type": A.GaussNoise,
+                "params": {'p': p, "mean": mean, "var_limit": var_limit}
+            })
+
 
         print(transforming_list)
 
 
         # _____ _____ setup augmented outputs _____ _____
-        fn_suffix = "v2"
+        fn_suffix = "vtest"
         outs = Path(f"{settings.MEDIA_ROOT}/augmented_{fn_suffix}")
         image_outs = outs / "images"
         label_outs = outs / "labels"

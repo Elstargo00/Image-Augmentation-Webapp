@@ -185,6 +185,41 @@
 
 
                 <div class="container">
+                    <hr>
+                    <label for="gauss_noise">Gaussian Noise:</label>
+                    <input type="checkbox" name="gauss_noise" id="gauss_noise" value="True">
+
+                    <div id="gauss_noise_params" style="display: none">
+                        <ul>
+                            <li>
+                                <label for="gauss_noise_p">p:</label>
+                                <input type="text" name="gauss_noise_p" id="gauss_noise_p" placeholder="probability [0 to 1]">
+                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
+                                    title="The percentage of feature application on the sample">
+                                </i>
+                            </li>
+                            <li>
+                                <label for="gauss_noise_mean">mean:</label>
+                                <input type="text" name="gauss_noise_mean" id="gauss_noise_mean" placeholder="mean [default 0]">
+                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
+                                    title="The mean of the distribution">
+                                </i>
+                            </li>
+                            <li>
+                                <label for="gauss_noise_var">Variance:</label>
+                                <input type="text" name="gauss_noise_var" id="gauss_noise_var" placeholder="variance">
+                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
+                                    title="The variance of the distribution">
+                                </i>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+
+
+
+                <div class="container">
                     <br>
                     <select name="TransformOption" id="">
                         <option value="oneTrans">one transform / dataset</option>
@@ -215,7 +250,7 @@
 
             var element_ids = [
                 "affine", "random_crop", "center_crop", "horizontal_flip",
-                "vertical_flip", "togray"
+                "vertical_flip", "togray", "gauss_noise"
             ]
 
             for (element_id of element_ids){
