@@ -99,7 +99,7 @@ def process_augmentation(request):
 
 
         # _____ _____ setup augmented outputs _____ _____
-        fn_suffix = "testing"
+        fn_suffix = "v2"
         outs = Path(f"{settings.MEDIA_ROOT}/augmented_{fn_suffix}")
         image_outs = outs / "images"
         label_outs = outs / "labels"
