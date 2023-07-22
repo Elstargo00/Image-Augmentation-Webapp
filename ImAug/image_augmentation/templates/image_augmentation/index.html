@@ -1,275 +1,322 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
-    <head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImgAug</title>
 
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ImgAug</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
-        <style>
-            .patched-container {
-                margin-top: 50px;
-            }
-
-
-        </style>
-    </head>
-    <body>
-
-        <div class="container patched-container">
-            <h1>ImgAug</h1>
-            <p>Welcome to the image augmentation app! Here, you can apply various augmentation techniques to your dataset..</p>
-
-            <form action="{% url 'process_augmentation' %}" method=POST>
+    <!-- Style -->
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        *:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-[#242833] text-[#cfcfcf]">
+    <!-- Core -->
+    <div class="p-12">
+        <div class="grid h-screen place-items-center">
+            <form action="{% url 'process_augmentation' %}" method="POST">
                 {% csrf_token %}
-                <div class="container">
-                    <hr>
-                    <label for="affine">Affine:</label>
-                    <input type="checkbox" name="affine" id="affine" value="True">
-                    
-                    <div id="affine_params" style="display: none">
-                        <ul>
-                            <li>
-                                <label for="affine_translate_percent">Translate</label>
-                                <input type="text" name="affine_translate_percent" id="affine_translate_percent" placeholder="percent [-1 to 1]">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The scale of translation">
-                                </i>
-                            </li>
-                            <li>
-                                <label for="affine_p">p:</label>
-                                <input type="text" name="affine_p" id="affine_p" placeholder="probability [0 to 1]">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The probability of feature application on the sample">
-                                </i>
-                            </li>
-                            <li>
-                                <label for="affine_rotate">Rotate</label>
-                                <input type="text" name="affine_rotate" id="affine_rotate" placeholder="degree [-360 to 360]">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The scale of rotation">
-                                </i>
-                            </li>
-                            <li>
-                                <label for="affine_shear">Shear</label>
-                                <input type="text" name="affine_shear" id="affine_shear" placeholder="(x, y) degree [-360 to 360] ">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The scale of shearing">
-                                </i>
-                            </li>
-                        </ul>
-                        
+                <div class="flex flex-col space-y-[3px]">
+                    <div class="rounded-t-[0.5rem] p-4 bg-[#00000026]"> 
+                        <div class="flex space-x-2">
+                            <div>
+                                <label for="affine" id="affine_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Affine</label>
+                                <input type="checkbox" name="affine" id="affine" value="True" checked class="hidden">
+                            </div>
+                            <div>
+                                <label for="random_crop" id="random_crop_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Random Crop</label>
+                                <input type="checkbox" name="random_crop" id="random_crop" value="True" class="hidden">
+                            </div>
+                            <div>
+                                <label for="center_crop" id="center_crop_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Center Crop</label>
+                                <input type="checkbox" name="center_crop" id="center_crop" value="True" class="hidden">
+                            </div>
+                            <div>
+                                <label for="horizontal_flip" id="horizontal_flip_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Horizontal Flip</label>
+                                <input type="checkbox" name="horizontal_flip" id="horizontal_flip" value="True" class="hidden">
+                            </div>
+                            <div>
+                                <label for="vertical_flip" id="vertical_flip_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Vertical Flip</label>
+                                <input type="checkbox" name="vertical_flip" id="vertical_flip" value="True" class="hidden">
+                            </div>
+                            <div>
+                                <label for="togray" id="togray_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Gray Scale</label>
+                                <input type="checkbox" name="togray" id="togray" value="True" class="hidden">
+                            </div>
+                            <div>
+                                <label for="gauss_noise" id="gauss_noise_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Gaussian Noise</label>
+                                <input type="checkbox" name="gauss_noise" id="gauss_noise" value="True" class="hidden">
+                            </div>
+                        </div> 
+                    </div>
+
+                    <div class="p-4 bg-[#00000026] hidden flex space-y-1" id="fuck-u">  
+                        <!-- Affine -->
+                        <div class="p-4 rounded-lg bg-[#00000026] hidden" id="affine_params">
+                            <div class="flex items-center justify-center">
+                                <h1 class="font-bold">Affine</h1>
+                            </div>
+    
+                            <div class="mt-2">
+                                <ul class="flex flex-col space-y-[3px]">
+                                    <li class="flex" id="affine_translate_box">
+                                        <label for="affine_translate_percent" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Translate</label>
+                                        <input type="text" name="affine_translate_percent" id="affine_translate_percent" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="percent [-1 to 1]">
+                                    </li>
+                                    <li class="flex" id="probability_box">
+                                        <label for="affine_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
+                                        <input type="text" name="affine_p" id="affine_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
+                                    </li>
+                                    <li class="flex" id="affine_rotate_box">
+                                        <label for="affine_rotate" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Rotate</label>
+                                        <input type="text" name="affine_rotate" id="affine_rotate" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="degree [-360 to 360]">
+                                    </li>
+                                    <li class="flex" id="affine_shear_box">
+                                        <label for="affine_shear" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Shear</label>
+                                        <input type="text" name="affine_shear" id="affine_shear" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="(x, y) degree [-360 to 360]">
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Random Crop -->
+                        <div class="p-4 rounded-lg bg-[#00000026] hidden" id="random_crop_params">
+                            <div class="flex items-center justify-center">
+                                <h1 class="font-bold">Random Crop</h1>
+                            </div>
+    
+                            <div class="mt-2">
+                                <ul class="flex flex-col space-y-[3px]">
+                                    <li class="flex" id="random_crop_width_box">
+                                        <label for="random_crop_width" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Width</label>
+                                        <input type="text" name="random_crop_width" id="random_crop_width" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="pixel">
+                                    </li>
+                                    <li class="flex" id="random_crop_height_box">
+                                        <label for="random_crop_height" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Height</label>
+                                        <input type="text" name="random_crop_height" id="random_crop_height" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="pixel">
+                                    </li>
+                                    <li class="flex" id="probability_box">
+                                        <label for="random_crop_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
+                                        <input type="text" name="random_crop_p" id="random_crop_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Center Crop -->
+                        <div class="p-4 rounded-lg bg-[#00000026] hidden" id="center_crop_params">
+                            <div class="flex items-center justify-center">
+                                <h1 class="font-bold">Center Crop</h1>
+                            </div>
+    
+                            <div class="mt-2">
+                                <ul class="flex flex-col space-y-[3px]">
+                                    <li class="flex" id="center_crop_width_box">
+                                        <label for="center_crop_width" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Width</label>
+                                        <input type="text" name="center_crop_width" id="center_crop_width" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="pixel">
+                                    </li>
+                                    <li class="flex" id="center_crop_height_box">
+                                        <label for="center_crop_height" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Height</label>
+                                        <input type="text" name="center_crop_height" id="center_crop_height" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="pixel">
+                                    </li>
+                                    <li class="flex" id="probability_box">
+                                        <label for="center_crop_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
+                                        <input type="text" name="center_crop_p" id="center_crop_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Horizontal Flip -->
+                        <div class="p-4 rounded-lg bg-[#00000026] hidden" id="horizontal_flip_params">
+                            <div class="flex items-center justify-center">
+                                <h1 class="font-bold">Horizontal Flip</h1>
+                            </div>
+
+                            <div class="mt-2">
+                                <ul class="flex flex-col space-y-[3px]">
+                                    <li class="flex" id="probability_box">
+                                        <label for="horizontal_flip_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
+                                        <input type="text" name="horizontal_flip_p" id="horizontal_flip_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Vertical Flip -->
+                        <div class="p-4 rounded-lg bg-[#00000026] hidden" id="vertical_flip_params">
+                            <div class="flex items-center justify-center">
+                                <h1 class="font-bold">Vertical Flip</h1>
+                            </div>
+
+                            <div class="mt-2">
+                                <ul class="flex flex-col space-y-[3px]">
+                                    <li class="flex" id="probability_box">
+                                        <label for="vertical_flip_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
+                                        <input type="text" name="vertical_flip_p" id="vertical_flip_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Gray Scale -->
+                        <div class="p-4 rounded-lg bg-[#00000026] hidden" id="togray_params">
+                            <div class="flex items-center justify-center">
+                                <h1 class="font-bold">Gray Scale</h1>
+                            </div>
+
+                            <div class="mt-2">
+                                <ul class="flex flex-col space-y-[3px]">
+                                    <li class="flex" id="probability_box">
+                                        <label for="togray_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
+                                        <input type="text" name="togray_p" id="togray_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Gaussian Noise -->
+                        <div class="p-4 rounded-lg bg-[#00000026] hidden" id="gauss_noise_params">
+                            <div class="flex items-center justify-center">
+                                <h1 class="font-bold">Gaussian Noise</h1>
+                            </div>
+
+                            <div class="mt-2">
+                                <ul class="flex flex-col space-y-[3px]">
+                                    <li class="flex" id="probability_box">
+                                        <label for="gauss_noise_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
+                                        <input type="text" name="gauss_noise_p" id="gauss_noise_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
+                                    </li>
+                                    <li class="flex" id="probability_box">
+                                        <label for="gauss_noise_mean" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Mean</label>
+                                        <input type="text" name="gauss_noise_mean" id="gauss_noise_mean" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Mean [default 00]">
+                                    </li>
+                                    <li class="flex" id="probability_box">
+                                        <label for="gauss_noise_var" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Variance</label>
+                                        <input type="text" name="gauss_noise_var" id="gauss_noise_var" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Variance">
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-b-[0.5rem] p-4 bg-[#00000026]">
+                        <div class="flex w-full flex-col space-y-1">
+                            <div class="flex">
+                                <label for="augmented_name" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Folder</label>
+                                <input type="text" name="augmented_name" id="augmented_name" class="bg-[#16191F] w-full rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Naming your output folder">
+                            </div>
+                            <div class="flex">
+                                <label for="tag_ver" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Version</label>
+                                <input type="text" name="tag_ver" id="tag_ver" class="bg-[#16191F] w-full rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Tag version">
+                            </div>
+                            <div class="flex">
+                                <label for="TransformOption" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Option</label>
+                                <select name="TransformOption" id="TransformOption" class="bg-[#16191F] w-full rounded border-2 border-blue-400 border px-1 text-sm">
+                                    <option value="oneTrans">one transform / dataset</option>
+                                    <option value="AllTrans">all transforms / dataset</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-4"></div>
+                        <button class="bg-blue-400 hover:bg-blue-500 transition ease-in  font-bold py-2 px-4 w-full rounded" type="submit">
+                            Apply Augmentations
+                        </button>
                     </div>
                 </div>
-
-                <div class="container">
-                    <hr>
-                    <label for="random_crop">Random Crop:</label>
-                    <input type="checkbox" name="random_crop" id="random_crop" value="True">
-                    
-                    <div id="random_crop_params" style="display: none">
-                        <ul>
-                            <li>
-                                <label for="random_crop_width">Width:</label>
-                                <input type="text" name="random_crop_width" id="random_crop_width" placeholder="pixel">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The cropping width">
-                                </i>
-                            </li>
-                            <li>
-                                <label for="random_crop_height">Height:</label>
-                                <input type="text" name="random_crop_height" id="random_crop_height" placeholder="pixel">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The cropping height">
-                                </i>
-                            </li>
-                            <li>
-                                <label for="random_crop_p">p:</label>
-                                <input type="text" name="random_crop_p" id="random_crop_p" placeholder="probability [0 to 1]">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The percentage of feature application on the sample">
-                                </i>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-
-                <div class="container">
-                    <hr>
-                    <label for="center_crop"> Center Crop:</label>
-                    <input type="checkbox" name="center_crop" id="center_crop" value="True">
-
-                    <div id="center_crop_params" style="display: none">
-                        <ul>
-                            <li>
-                                <label for="center_crop_width">Width:</label>
-                                <input type="text" name="center_crop_width" id="center_crop_width" placeholder="pixel">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The cropping width">
-                                </i>
-                            </li>
-                            <li>
-                                <label for="random_crop_height">Height:</label>
-                                <input type="text" name="center_crop_height" id="center_crop_height" placeholder="pixel">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The cropping height">
-                                </i>
-                            </li>
-                            <li>
-                                <label for="center_crop_p">p:</label>
-                                <input type="text" name="center_crop_p" id="center_crop_p" placeholder="probability [0 to 1]">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The percentage of feature application on the sample">
-                                </i>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="container">
-                    <hr>
-                    <label for="horizontal_flip">Horizontal Flip:</label>
-                    <input type="checkbox" name="horizontal_flip" id="horizontal_flip" value="True">
-                    
-                    <div id="horizontal_flip_params" style="display: none">
-                        <ul>
-                            <li>
-                                <label for="horizontal_flip_p">p:</label>
-                                <input type="text" name="horizontal_flip_p" id="horizontal_flip_p" placeholder="probability [0 to 1]">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The percentage of feature application on the sample">
-                                </i>
-                            </li>
-                        </ul> 
-                    </div>
-                </div>
-
-                <div class="container">
-                    <hr>
-                    <label for="vertical_fllip">Vertical Flip:</label>
-                    <input type="checkbox" name="vertical_flip" id="vertical_flip" value="True">
-
-                    <div id="vertical_flip_params" style="display: none">
-                        <ul>
-                            <li>
-                                <label for="vertical_flip_p">p:</label>
-                                <input type="text" name="vertical_flip_p" id="vertical_flip_p" placeholder="probability [0 to 1]">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The percentage of feature application on the sample">
-                                </i>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-
-                <div class="container">
-                    <hr>
-                    <label for="togray">Gray Scale:</label>
-                    <input type="checkbox" name="togray" id="togray" value="True">
-
-                    <div id="togray_params" style="display: none">
-                        <ul>
-                            <li>
-                                <label for="togray_p">p:</label>
-                                <input type="text" name="togray_p" id="togray_p" placeholder="probability [0 to 1]">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The percentage of feature application on the sample">
-                                </i>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-
-                <div class="container">
-                    <hr>
-                    <label for="gauss_noise">Gaussian Noise:</label>
-                    <input type="checkbox" name="gauss_noise" id="gauss_noise" value="True">
-
-                    <div id="gauss_noise_params" style="display: none">
-                        <ul>
-                            <li>
-                                <label for="gauss_noise_p">p:</label>
-                                <input type="text" name="gauss_noise_p" id="gauss_noise_p" placeholder="probability [0 to 1]">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The percentage of feature application on the sample">
-                                </i>
-                            </li>
-                            <li>
-                                <label for="gauss_noise_mean">mean:</label>
-                                <input type="text" name="gauss_noise_mean" id="gauss_noise_mean" placeholder="mean [default 0]">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The mean of the distribution">
-                                </i>
-                            </li>
-                            <li>
-                                <label for="gauss_noise_var">Variance:</label>
-                                <input type="text" name="gauss_noise_var" id="gauss_noise_var" placeholder="variance">
-                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The variance of the distribution">
-                                </i>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-
-
-
-                <div class="container">
-                    <br>
-                    <select name="TransformOption" id="">
-                        <option value="oneTrans">one transform / dataset</option>
-                        <option value="AllTrans">all transforms / dataset</option>
-                    </select>
-                    <hr>
-                </div>
-
-                <div class="container">
-                    <label for="augmented_name">Output Folder:</label>
-                    <input type="text" name="augmented_name" id="augmented_name" placeholder="naming your output folder">
-                    <label for="tag_ver">Tag Version:</label>
-                    <input type="text" name="tag_ver" id="tag_ver" placeholder="tag version">
-                </div>
-                
-                <div class="container">
-                    <br>
-                    <input type="submit" value="Apply Augmentations">
-                </div>
-
             </form>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
-        <script>
 
-            function review_params(element_id) {
-                document.getElementById(element_id).addEventListener("change", function () {
-                    var form = document.getElementById(`${element_id}_params`);
-                    if (this.checked) {
-                        form.style.display = "block";
-                    } else {
-                        form.style.display = "none";
-                    }
-                });
+        <div id="tooltip" class="hidden absolute bg-[#16191F] p-2 rounded-lg">
+            <span class="text-white"></span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Please don't look at it. it very suck. im shy lol! -->
+    <script>
+        const Tooltip = document.getElementById("tooltip")
+
+        function CreateTooltip(Element, Text) { 
+            Element.addEventListener("mouseenter", () => {
+                Tooltip.style.display = "block"
+            })
+
+            Element.addEventListener("mouseleave", () => {
+                Tooltip.style.display = "none"
+            })
+        }
+
+        document.addEventListener("mousemove", (e) => {
+            Tooltip.style.left = e.pageX + 5 + 'px';
+            Tooltip.style.top = e.pageY - 35 + 'px';
+        })
+    </script>
+
+    <script>
+        const ToolTips = {
+            "affine_translate": "Test Hello World"
+        }
+        
+        for (const [Id, Text] of Object.entries(ToolTips)) {
+            CreateTooltip(document.getElementById(Id), Text)
+        }
+    </script>
+
+    <script>
+        const ElementIds = ["affine", "random_crop", "center_crop", "horizontal_flip", "vertical_flip", "togray", "gauss_noise"]
+        const ElementChecked = {}
+        
+        const Amm = document.getElementById("fuck-u")
+        
+        function Check(Element) {
+            if (this.id) {
+                Element = this
             }
 
-            var element_ids = [
-                "affine", "random_crop", "center_crop", "horizontal_flip",
-                "vertical_flip", "togray", "gauss_noise"
-            ]
+            const Label = document.getElementById(Element.id + "_label")
+            const Params = document.getElementById(Element.id + "_params")
 
-            for (element_id of element_ids){
-                review_params(element_id)
+            ElementChecked[Element.id] = Element.checked ? 1 : 0
+
+            if (Element.checked) {
+                Label.classList.remove("bg-blue-400")
+                Label.classList.add("bg-blue-500")
+                Params.style.display = "block";
+            }
+            else {
+                Label.classList.remove("bg-blue-500")
+                Label.classList.add("bg-blue-400")
+                Params.style.display = "none";
             }
 
-            $(document).read(function() {
-                $('[data-toggle="tooltip"]').tooltip();
-            });
+            let ElementCheckedNumber = 0
 
+            for (const [_, Value] of Object.entries(ElementChecked)) {
+                ElementCheckedNumber += Value
+            }
 
-        </script>  
-    </body>
+            if (ElementCheckedNumber > 0) {
+                Amm.style.display = "block"
+            }
+            else {
+                Amm.style.display = "none"
+            }
+        }
+
+        for (const ElementId of ElementIds) {
+            const Element = document.getElementById(ElementId)
+
+            ElementChecked[ElementId] = 0
+
+            Element.addEventListener("click", Check)
+            Check(Element)
+        }
+    </script>
+</body>
 </html>
