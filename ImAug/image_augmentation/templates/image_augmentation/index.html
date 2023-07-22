@@ -17,12 +17,12 @@
 </head>
 <body class="bg-[#242833] text-[#cfcfcf]">
     <!-- Core -->
-    <div class="p-12">
+    <div>
         <div class="grid h-screen place-items-center">
             <form action="{% url 'process_augmentation' %}" method="POST">
                 {% csrf_token %}
                 <div class="grid grid-rows grid-flow-col gap-2">
-                    <div class="row-span-3 rounded-l-lg p-4 bg-[#00000026]"> 
+                    <div class="row-span-3 rounded-l-lg rounded-r p-4 bg-[#00000026]"> 
                         <div class="flex flex-col space-y-4">
                             <div>
                                 <label for="affine" id="affine_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Affine</label>
@@ -55,7 +55,7 @@
                         </div> 
                     </div>
 
-                    <div class="col-span-2 rounded-tr-lg p-4 bg-[#00000026] hidden flex space-y-1" id="fuck-u">  
+                    <div class="col-span-2 rounded-tr-lg rounded-br rounded-l p-4 bg-[#00000026] hidden flex space-y-1" id="fuck-u">  
                         <!-- Affine -->
                         <div class="p-4 rounded-lg bg-[#00000026] hidden" id="affine_params">
                             <div class="flex items-center justify-center">
@@ -205,7 +205,7 @@
                         </div>
                     </div>
 
-                    <div class="row-span-2 rounded-br-lg col-span-2 p-4 bg-[#00000026]">
+                    <div class="row-span-2 rounded-br-lg rounded-tr rounded-l col-span-2 p-4 bg-[#00000026]">
                         <div class="flex w-full flex-col space-y-1">
                             <div class="flex">
                                 <label for="augmented_name" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Folder</label>
