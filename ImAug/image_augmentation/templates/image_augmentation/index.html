@@ -23,36 +23,36 @@
                 {% csrf_token %}
                 <div class="grid grid-rows grid-flow-col gap-2">
                     <div class="row-span-3 rounded-l-lg rounded-r p-4 bg-[#00000026]"> 
-                        <div class="flex flex-col space-y-4">
-                            <div>
-                                <label for="affine" id="affine_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Affine</label>
+                        <div class="flex w-full h-full flex-col space-y-1 justify-center">
+                            <div class="flex">
+                                <label for="affine" id="affine_label" class="w-full select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded text-center">Affine</label>
                                 <input type="checkbox" name="affine" id="affine" value="True" checked class="hidden">
                             </div>
-                            <div>
-                                <label for="random_crop" id="random_crop_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Random Crop</label>
+                            <div class="flex">
+                                <label for="random_crop" id="random_crop_label" class="w-full select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded text-center">Random Crop</label>
                                 <input type="checkbox" name="random_crop" id="random_crop" value="True" class="hidden">
                             </div>
-                            <div>
-                                <label for="center_crop" id="center_crop_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Center Crop</label>
+                            <div class="flex">
+                                <label for="center_crop" id="center_crop_label" class="w-full select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded text-center">Center Crop</label>
                                 <input type="checkbox" name="center_crop" id="center_crop" value="True" class="hidden">
                             </div>
-                            <div>
-                                <label for="horizontal_flip" id="horizontal_flip_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Horizontal Flip</label>
+                            <div class="flex">
+                                <label for="horizontal_flip" id="horizontal_flip_label" class="w-full select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded text-center">Horizontal Flip</label>
                                 <input type="checkbox" name="horizontal_flip" id="horizontal_flip" value="True" class="hidden">
                             </div>
-                            <div>
-                                <label for="vertical_flip" id="vertical_flip_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Vertical Flip</label>
+                            <div class="flex">
+                                <label for="vertical_flip" id="vertical_flip_label" class="w-full select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded text-center">Vertical Flip</label>
                                 <input type="checkbox" name="vertical_flip" id="vertical_flip" value="True" class="hidden">
                             </div>
-                            <div>
-                                <label for="togray" id="togray_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Gray Scale</label>
+                            <div class="flex">
+                                <label for="togray" id="togray_label" class="w-full select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded text-center">Gray Scale</label>
                                 <input type="checkbox" name="togray" id="togray" value="True" class="hidden">
                             </div>
-                            <div>
-                                <label for="gauss_noise" id="gauss_noise_label" class="w-fit select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded">Gaussian Noise</label>
+                            <div class="flex">
+                                <label for="gauss_noise" id="gauss_noise_label" class="w-full select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded text-center">Gaussian Noise</label>
                                 <input type="checkbox" name="gauss_noise" id="gauss_noise" value="True" class="hidden">
                             </div>
-                        </div> 
+                        </div>
                     </div>
 
                     <div class="col-span-2 rounded-tr-lg rounded-br rounded-l p-4 bg-[#00000026] hidden flex space-y-1" id="fuck-u">  
