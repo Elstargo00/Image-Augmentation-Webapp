@@ -298,7 +298,6 @@
         const ElementIds = ["affine", "random_crop", "center_crop", "horizontal_flip", "vertical_flip", "togray", "gauss_noise"]
         const ElementChecked = {}
 
-        const Fuck = document.getElementById("fuck")
         const WelcomeBox = document.getElementById("welcome_text_box")
         
         function Check(Element) {
@@ -329,10 +328,6 @@
 
             if (Num > 0) {
                 WelcomeBox.style.display = "none"
-                Fuck.classList.remove("grid-cols-1")
-                Fuck.classList.remove("grid-cols-2")
-                Fuck.classList.remove("grid-cols-3")
-                Fuck.classList.add("grid-cols-" + Math.min(Num, 3))
             }
             else {
                 WelcomeBox.style.display = "block"
@@ -341,8 +336,6 @@
 
         for (const ElementId of ElementIds) {
             const Element = document.getElementById(ElementId)
-
-            ElementChecked[ElementId] = 0
 
             Element.addEventListener("click", Check)
             Check(Element)
