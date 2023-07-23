@@ -55,152 +55,154 @@
                         </div>
                     </div>
 
-                    <div class="col-span-2 rounded-tr-lg rounded-br rounded-l p-4 bg-[#00000026] hidden flex space-y-1" id="fuck-u">  
-                        <!-- Affine -->
-                        <div class="p-4 rounded-lg bg-[#00000026] hidden" id="affine_params">
-                            <div class="flex items-center justify-center">
-                                <h1 class="font-bold">Affine</h1>
-                            </div>
-    
-                            <div class="mt-2">
-                                <ul class="flex flex-col space-y-[3px]">
-                                    <li class="flex" id="affine_translate_box">
-                                        <label for="affine_translate_percent" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Translate</label>
-                                        <input type="text" name="affine_translate_percent" id="affine_translate_percent" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="percent [-1 to 1]">
-                                    </li>
-                                    <li class="flex" id="probability_box">
-                                        <label for="affine_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
-                                        <input type="text" name="affine_p" id="affine_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
-                                    </li>
-                                    <li class="flex" id="affine_rotate_box">
-                                        <label for="affine_rotate" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Rotate</label>
-                                        <input type="text" name="affine_rotate" id="affine_rotate" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="degree [-360 to 360]">
-                                    </li>
-                                    <li class="flex" id="affine_shear_box">
-                                        <label for="affine_shear" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Shear</label>
-                                        <input type="text" name="affine_shear" id="affine_shear" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="(x, y) degree [-360 to 360]">
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+                    <div class="col-span-2 rounded-tr-lg rounded-br rounded-l p-4 bg-[#00000026] w-full">
+                        <div class="w-full grid grid-cols-3 gap-2" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+                            <!-- Affine -->
+                            <div class="p-4 rounded-lg bg-[#00000026] hidden" id="affine_params">
+                                <div class="flex items-center justify-center">
+                                    <h1 class="font-bold">Affine</h1>
+                                </div>
 
-                        <!-- Random Crop -->
-                        <div class="p-4 rounded-lg bg-[#00000026] hidden" id="random_crop_params">
-                            <div class="flex items-center justify-center">
-                                <h1 class="font-bold">Random Crop</h1>
-                            </div>
-    
-                            <div class="mt-2">
-                                <ul class="flex flex-col space-y-[3px]">
-                                    <li class="flex" id="random_crop_width_box">
-                                        <label for="random_crop_width" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Width</label>
-                                        <input type="text" name="random_crop_width" id="random_crop_width" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="pixel">
-                                    </li>
-                                    <li class="flex" id="random_crop_height_box">
-                                        <label for="random_crop_height" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Height</label>
-                                        <input type="text" name="random_crop_height" id="random_crop_height" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="pixel">
-                                    </li>
-                                    <li class="flex" id="probability_box">
-                                        <label for="random_crop_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
-                                        <input type="text" name="random_crop_p" id="random_crop_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- Center Crop -->
-                        <div class="p-4 rounded-lg bg-[#00000026] hidden" id="center_crop_params">
-                            <div class="flex items-center justify-center">
-                                <h1 class="font-bold">Center Crop</h1>
-                            </div>
-    
-                            <div class="mt-2">
-                                <ul class="flex flex-col space-y-[3px]">
-                                    <li class="flex" id="center_crop_width_box">
-                                        <label for="center_crop_width" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Width</label>
-                                        <input type="text" name="center_crop_width" id="center_crop_width" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="pixel">
-                                    </li>
-                                    <li class="flex" id="center_crop_height_box">
-                                        <label for="center_crop_height" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Height</label>
-                                        <input type="text" name="center_crop_height" id="center_crop_height" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="pixel">
-                                    </li>
-                                    <li class="flex" id="probability_box">
-                                        <label for="center_crop_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
-                                        <input type="text" name="center_crop_p" id="center_crop_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- Horizontal Flip -->
-                        <div class="p-4 rounded-lg bg-[#00000026] hidden" id="horizontal_flip_params">
-                            <div class="flex items-center justify-center">
-                                <h1 class="font-bold">Horizontal Flip</h1>
+                                <div class="mt-2">
+                                    <ul class="flex flex-col space-y-[3px]">
+                                        <li class="flex" id="affine_translate_box">
+                                            <label for="affine_translate_percent" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Translate</label>
+                                            <input type="text" name="affine_translate_percent" id="affine_translate_percent" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="percent [-1 to 1]">
+                                        </li>
+                                        <li class="flex" id="probability_box">
+                                            <label for="affine_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
+                                            <input type="text" name="affine_p" id="affine_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
+                                        </li>
+                                        <li class="flex" id="affine_rotate_box">
+                                            <label for="affine_rotate" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Rotate</label>
+                                            <input type="text" name="affine_rotate" id="affine_rotate" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="degree [-360 to 360]">
+                                        </li>
+                                        <li class="flex" id="affine_shear_box">
+                                            <label for="affine_shear" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Shear</label>
+                                            <input type="text" name="affine_shear" id="affine_shear" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="(x, y) degree [-360 to 360]">
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
 
-                            <div class="mt-2">
-                                <ul class="flex flex-col space-y-[3px]">
-                                    <li class="flex" id="probability_box">
-                                        <label for="horizontal_flip_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
-                                        <input type="text" name="horizontal_flip_p" id="horizontal_flip_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+                            <!-- Random Crop -->
+                            <div class="p-4 rounded-lg bg-[#00000026] hidden" id="random_crop_params">
+                                <div class="flex items-center justify-center">
+                                    <h1 class="font-bold">Random Crop</h1>
+                                </div>
 
-                        <!-- Vertical Flip -->
-                        <div class="p-4 rounded-lg bg-[#00000026] hidden" id="vertical_flip_params">
-                            <div class="flex items-center justify-center">
-                                <h1 class="font-bold">Vertical Flip</h1>
-                            </div>
-
-                            <div class="mt-2">
-                                <ul class="flex flex-col space-y-[3px]">
-                                    <li class="flex" id="probability_box">
-                                        <label for="vertical_flip_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
-                                        <input type="text" name="vertical_flip_p" id="vertical_flip_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- Gray Scale -->
-                        <div class="p-4 rounded-lg bg-[#00000026] hidden" id="togray_params">
-                            <div class="flex items-center justify-center">
-                                <h1 class="font-bold">Gray Scale</h1>
+                                <div class="mt-2">
+                                    <ul class="flex flex-col space-y-[3px]">
+                                        <li class="flex" id="random_crop_width_box">
+                                            <label for="random_crop_width" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Width</label>
+                                            <input type="text" name="random_crop_width" id="random_crop_width" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="pixel">
+                                        </li>
+                                        <li class="flex" id="random_crop_height_box">
+                                            <label for="random_crop_height" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Height</label>
+                                            <input type="text" name="random_crop_height" id="random_crop_height" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="pixel">
+                                        </li>
+                                        <li class="flex" id="probability_box">
+                                            <label for="random_crop_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
+                                            <input type="text" name="random_crop_p" id="random_crop_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
 
-                            <div class="mt-2">
-                                <ul class="flex flex-col space-y-[3px]">
-                                    <li class="flex" id="probability_box">
-                                        <label for="togray_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
-                                        <input type="text" name="togray_p" id="togray_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+                            <!-- Center Crop -->
+                            <div class="p-4 rounded-lg bg-[#00000026] hidden" id="center_crop_params">
+                                <div class="flex items-center justify-center">
+                                    <h1 class="font-bold">Center Crop</h1>
+                                </div>
 
-                        <!-- Gaussian Noise -->
-                        <div class="p-4 rounded-lg bg-[#00000026] hidden" id="gauss_noise_params">
-                            <div class="flex items-center justify-center">
-                                <h1 class="font-bold">Gaussian Noise</h1>
+                                <div class="mt-2">
+                                    <ul class="flex flex-col space-y-[3px]">
+                                        <li class="flex" id="center_crop_width_box">
+                                            <label for="center_crop_width" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Width</label>
+                                            <input type="text" name="center_crop_width" id="center_crop_width" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="pixel">
+                                        </li>
+                                        <li class="flex" id="center_crop_height_box">
+                                            <label for="center_crop_height" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Height</label>
+                                            <input type="text" name="center_crop_height" id="center_crop_height" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="pixel">
+                                        </li>
+                                        <li class="flex" id="probability_box">
+                                            <label for="center_crop_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
+                                            <input type="text" name="center_crop_p" id="center_crop_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
 
-                            <div class="mt-2">
-                                <ul class="flex flex-col space-y-[3px]">
-                                    <li class="flex" id="probability_box">
-                                        <label for="gauss_noise_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
-                                        <input type="text" name="gauss_noise_p" id="gauss_noise_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
-                                    </li>
-                                    <li class="flex" id="probability_box">
-                                        <label for="gauss_noise_mean" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Mean</label>
-                                        <input type="text" name="gauss_noise_mean" id="gauss_noise_mean" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Mean [default 00]">
-                                    </li>
-                                    <li class="flex" id="probability_box">
-                                        <label for="gauss_noise_var" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Variance</label>
-                                        <input type="text" name="gauss_noise_var" id="gauss_noise_var" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Variance">
-                                    </li>
-                                </ul>
+                            <!-- Horizontal Flip -->
+                            <div class="p-4 rounded-lg bg-[#00000026] hidden" id="horizontal_flip_params">
+                                <div class="flex items-center justify-center">
+                                    <h1 class="font-bold">Horizontal Flip</h1>
+                                </div>
+
+                                <div class="mt-2">
+                                    <ul class="flex flex-col space-y-[3px]">
+                                        <li class="flex" id="probability_box">
+                                            <label for="horizontal_flip_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
+                                            <input type="text" name="horizontal_flip_p" id="horizontal_flip_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Vertical Flip -->
+                            <div class="p-4 rounded-lg bg-[#00000026] hidden" id="vertical_flip_params">
+                                <div class="flex items-center justify-center">
+                                    <h1 class="font-bold">Vertical Flip</h1>
+                                </div>
+
+                                <div class="mt-2">
+                                    <ul class="flex flex-col space-y-[3px]">
+                                        <li class="flex" id="probability_box">
+                                            <label for="vertical_flip_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
+                                            <input type="text" name="vertical_flip_p" id="vertical_flip_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Gray Scale -->
+                            <div class="p-4 rounded-lg bg-[#00000026] hidden" id="togray_params">
+                                <div class="flex items-center justify-center">
+                                    <h1 class="font-bold">Gray Scale</h1>
+                                </div>
+
+                                <div class="mt-2">
+                                    <ul class="flex flex-col space-y-[3px]">
+                                        <li class="flex" id="probability_box">
+                                            <label for="togray_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
+                                            <input type="text" name="togray_p" id="togray_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Gaussian Noise -->
+                            <div class="p-4 rounded-lg bg-[#00000026] hidden" id="gauss_noise_params">
+                                <div class="flex items-center justify-center">
+                                    <h1 class="font-bold">Gaussian Noise</h1>
+                                </div>
+
+                                <div class="mt-2">
+                                    <ul class="flex flex-col space-y-[3px]">
+                                        <li class="flex" id="probability_box">
+                                            <label for="gauss_noise_p" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">P</label>
+                                            <input type="text" name="gauss_noise_p" id="gauss_noise_p" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Probability [0 to 1]">
+                                        </li>
+                                        <li class="flex" id="probability_box">
+                                            <label for="gauss_noise_mean" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Mean</label>
+                                            <input type="text" name="gauss_noise_mean" id="gauss_noise_mean" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Mean [default 00]">
+                                        </li>
+                                        <li class="flex" id="probability_box">
+                                            <label for="gauss_noise_var" class="rounded bg-blue-400 text-white mr-[-5px] px-2 py-[1px]">Variance</label>
+                                            <input type="text" name="gauss_noise_var" id="gauss_noise_var" class="bg-[#16191F] rounded border-2 border-blue-400 border px-1 text-sm" placeholder="Variance">
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -270,9 +272,6 @@
 
     <script>
         const ElementIds = ["affine", "random_crop", "center_crop", "horizontal_flip", "vertical_flip", "togray", "gauss_noise"]
-        const ElementChecked = {}
-        
-        const Amm = document.getElementById("fuck-u")
         
         function Check(Element) {
             if (this.id) {
@@ -281,8 +280,6 @@
 
             const Label = document.getElementById(Element.id + "_label")
             const Params = document.getElementById(Element.id + "_params")
-
-            ElementChecked[Element.id] = Element.checked ? 1 : 0
 
             if (Element.checked) {
                 Label.classList.remove("bg-blue-400")
@@ -294,25 +291,10 @@
                 Label.classList.add("bg-blue-400")
                 Params.style.display = "none";
             }
-
-            let ElementCheckedNumber = 0
-
-            for (const [_, Value] of Object.entries(ElementChecked)) {
-                ElementCheckedNumber += Value
-            }
-
-            if (ElementCheckedNumber > 0) {
-                Amm.style.display = "block"
-            }
-            else {
-                Amm.style.display = "none"
-            }
         }
 
         for (const ElementId of ElementIds) {
             const Element = document.getElementById(ElementId)
-
-            ElementChecked[ElementId] = 0
 
             Element.addEventListener("click", Check)
             Check(Element)
