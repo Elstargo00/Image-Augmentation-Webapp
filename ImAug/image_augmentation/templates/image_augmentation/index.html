@@ -56,7 +56,7 @@
                     </div>
 
                     <div class="col-span-2 rounded-tr-lg rounded-br rounded-l p-4 bg-[#00000026] w-full">
-                        <div class="w-full grid grid-cols-3 gap-2" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+                        <div class="w-full grid gap-2" id="fuck">
                             <!-- Affine -->
                             <div class="p-4 rounded-lg bg-[#00000026] hidden" id="affine_params">
                                 <div class="flex items-center justify-center">
@@ -285,6 +285,9 @@
 
     <script>
         const ElementIds = ["affine", "random_crop", "center_crop", "horizontal_flip", "vertical_flip", "togray", "gauss_noise"]
+        const ElementChecked = {}
+
+        const Fuck = document.getElementById("fuck")
         
         function Check(Element) {
             if (this.id) {
@@ -297,17 +300,31 @@
             if (Element.checked) {
                 Label.classList.remove("bg-blue-400")
                 Label.classList.add("bg-blue-500")
-                Params.style.display = "block";
+                Params.style.display = "block"
+                ElementChecked[Element.id] = 1
             }
             else {
                 Label.classList.remove("bg-blue-500")
                 Label.classList.add("bg-blue-400")
-                Params.style.display = "none";
+                Params.style.display = "none"
+                ElementChecked[Element.id] = 0
             }
+
+            let Num = 0
+            for (const [N, Value] of Object.entries(ElementChecked)) {
+                Num += Value
+            }
+
+            Fuck.classList.remove("grid-cols-1")
+            Fuck.classList.remove("grid-cols-2")
+            Fuck.classList.remove("grid-cols-3")
+            Fuck.classList.add("grid-cols-" + Math.min(Num, 3))
         }
 
         for (const ElementId of ElementIds) {
             const Element = document.getElementById(ElementId)
+
+            ElementChecked[ElementId] = 0
 
             Element.addEventListener("click", Check)
             Check(Element)
