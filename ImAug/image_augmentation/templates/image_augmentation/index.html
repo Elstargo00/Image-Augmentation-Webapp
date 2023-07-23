@@ -26,7 +26,7 @@
                         <div class="flex w-full h-full flex-col space-y-1 justify-center">
                             <div class="flex">
                                 <label for="affine" id="affine_label" class="w-full select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded text-center">Affine</label>
-                                <input type="checkbox" name="affine" id="affine" value="True" checked class="hidden">
+                                <input type="checkbox" name="affine" id="affine" value="True" class="hidden">
                             </div>
                             <div class="flex">
                                 <label for="random_crop" id="random_crop_label" class="w-full select-none cursor-pointer z-999 bg-blue-400 font-bold py-2 px-4 rounded text-center">Random Crop</label>
@@ -57,6 +57,17 @@
 
                     <div class="col-span-2 rounded-tr-lg rounded-br rounded-l p-4 bg-[#00000026] w-full">
                         <div class="w-full grid gap-2" id="fuck">
+                            <!-- Welcome -->
+                            <div class="p-4 rounded-lg bg-[#00000026]" id="welcome_text_box">
+                                <div class="flex items-center justify-center">
+                                    <h1 class="font-bold">ImgAug</h1>
+                                </div>
+
+                                <div class="mt-2">
+                                    <p class="max-w-xs text-center">Welcome to the image augmentation app! Here, you can apply various augmentation techniques to your dataset.</p>
+                                </div>
+                            </div>
+
                             <!-- Affine -->
                             <div class="p-4 rounded-lg bg-[#00000026] hidden" id="affine_params">
                                 <div class="flex items-center justify-center">
@@ -288,6 +299,7 @@
         const ElementChecked = {}
 
         const Fuck = document.getElementById("fuck")
+        const WelcomeBox = document.getElementById("welcome_text_box")
         
         function Check(Element) {
             if (this.id) {
@@ -315,10 +327,16 @@
                 Num += Value
             }
 
-            Fuck.classList.remove("grid-cols-1")
-            Fuck.classList.remove("grid-cols-2")
-            Fuck.classList.remove("grid-cols-3")
-            Fuck.classList.add("grid-cols-" + Math.min(Num, 3))
+            if (Num > 0) {
+                WelcomeBox.style.display = "none"
+                Fuck.classList.remove("grid-cols-1")
+                Fuck.classList.remove("grid-cols-2")
+                Fuck.classList.remove("grid-cols-3")
+                Fuck.classList.add("grid-cols-" + Math.min(Num, 3))
+            }
+            else {
+                WelcomeBox.style.display = "block"
+            }
         }
 
         for (const ElementId of ElementIds) {
