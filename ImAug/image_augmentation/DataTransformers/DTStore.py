@@ -29,7 +29,6 @@ class TransPack(Dataset):
     def __getitem__(self, index):
 
         image_filename, label_filename = self.data[index]
-
         img = Image.open(self.images_dir / image_filename)
         img = np.array(img)
 
@@ -38,6 +37,8 @@ class TransPack(Dataset):
             labels = [label.strip().split(" ") for label in labels]
             bboxes = []
             class_labels = []
+
+            print(label_filename)
 
             for label in labels:
                 # changable format
@@ -50,6 +51,8 @@ class TransPack(Dataset):
                 bboxes = augmentations["bboxes"]
 
             return image_filename, image, label_filename, bboxes
+            
+            
 
 
 
