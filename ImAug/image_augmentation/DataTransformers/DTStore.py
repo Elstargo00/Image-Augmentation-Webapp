@@ -1,4 +1,5 @@
 from torch.utils.data import Dataset
+from .utils import text_to_hex, extract_transforming_name
 from pathlib import Path
 import os
 from PIL import Image
@@ -52,9 +53,6 @@ class TransPack(Dataset):
 
             return image_filename, image, label_filename, bboxes
             
-            
-
-
 
 
 class TransFormat:
@@ -101,3 +99,68 @@ class TransFormat:
     
     
     
+
+
+# _____________________________________________________________________________
+# Build a function
+def apply_transform(dataset_dir, transforming_option, transforming_list, output_dir):
+
+    if transforming_option == "oneTrans":
+        for each in transforming_list:
+            transformat = TransFormat(output_dir)
+            filename_extension = text_to_hex(
+                extract_transforming_name(each["format_type"])
+            )
+            transformat.append_format(each)
+            transform = transformat.compose(format="yolo", min_vis=0.7)
+
+            dataset = TransPack(
+                dataset_dir = dataset_dir,
+                transform = transform
+            )
+
+            tag_ver = output_dir.parts[-1].split('_')[-1]
+
+            for image_filename, image, label_filename, bboxes in dataset:
+                label_filename = f"{label_filename[: -4]}_{tag_ver}_{filename_extension}.txt"
+                saved_label = output_dir / "labels" / label_filename
+
+                with open(saved_label, 'a') as label_file:
+                    for bbox in bboxes:
+                        label_file.write(f"{str(bbox[-1])} {str(bbox[0])} {str(bbox[1])} {str(bbox[2])} {str(bbox[3])}\n")
+
+                image_filename = f"{image_filename[: -4]}_{tag_ver}_{filename_extension}.png"
+                saved_image = output_dir / "images" / image_filename
+                image = Image.fromarray(image)
+                image.save(saved_image)
+
+
+    elif transforming_option == "allTrans":
+        transformat = TransFormat(output_dir)
+        filename_extension = []
+        for each in transforming_list:
+            filename_extension.append(extract_transforming_name(each["format_type"]))
+            transformat.append_format(each)
+        
+        filename_extension = text_to_hex(", ".join(filename_extension))
+        transform = transformat.compose(format="yolo", min_vis=0.7)
+        
+        dataset = TransPack(
+            dataset_dir = dataset_dir,
+            transform = transform
+        )
+
+        tag_ver = output_dir.parts[-1].split('_')[-1]
+
+        for image_filename, image, label_filename, bboxes in dataset:
+            label_filename = f"{label_filename[: -4]}_{tag_ver}_{filename_extension}.txt"
+            saved_label = output_dir / "labels" / label_filename
+
+            with open(saved_label, 'a') as label_file:
+                for bbox in bboxes:
+                    label_file.write(f"{str(bbox[-1])} {str(bbox[0])} {str(bbox[1])} {str(bbox[2])} {str(bbox[3])}\n")
+
+            image_filename = f"{image_filename[: -4]}_{tag_ver}_{filename_extension}.png"
+            saved_image = output_dir / "images" / image_filename
+            image = Image.fromarray(image)
+            image.save(saved_image)
