@@ -3,7 +3,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
 
 import albumentations as A
-from .DataTransformers.DTStore import TransPack, TransFormat
+from .DataTransformers.DTStore import TransPack, TransFormat, apply_transform
+from .DataTransformers.DTsplit import split_data
 from pathlib import Path
 from PIL import Image
 import ast
@@ -101,8 +102,23 @@ def process_augmentation(request):
                 "params": {'p': p, "mean": mean, "var_limit": var_limit}
             })
 
+        if request.POST.get("split_data"):
+            train_validate_testsize = request.POST.get("train_validate_testsize")
 
-        print(transforming_list)
+            if not train_validate_testsize:
+                train_validate_testsize = 0
+            else:
+                train_validate_testsize = float(train_validate_testsize)
+
+            test_testsize = request.POST.get("test_testsize")
+
+            if not test_testsize:
+                test_testsize = 0
+            else:
+                test_testsize = float(test_testsize)
+        else:
+            train_validate_testsize = 0
+            test_testsize = 0
 
 
         # _____ _____ setup augmented outputs _____ _____
@@ -113,98 +129,146 @@ def process_augmentation(request):
         if not tag_ver:
             tag_ver = "V1"
         outs = Path(f"{settings.MEDIA_ROOT}/{output_folder}_{tag_ver}")
-        image_outs = outs / "images"
-        label_outs = outs / "labels"
-        image_outs.mkdir(parents=True, exist_ok=True)
-        label_outs.mkdir(parents=True, exist_ok=True)
-        # ____ ____ ____ ____ ____ ____ ____ ____ ____
 
-        print(request.POST.get("TransformOption"))
+        dataset_dir = Path(f"{settings.MEDIA_ROOT}/datasets")
 
-        # There are two options for applying augmentation
+        transforming_option = request.POST.get("TransformOption")
 
-        transform_option = request.POST.get("TransformOption")
+        # Generate directory according to the split params
+        # 1. no split
+        if train_validate_testsize == 0 and test_testsize == 0:
+            outs.mkdir(parents=True, exist_ok=True)
 
-        # 1st: 1 augment / 1 sample
-        if transform_option == "oneTrans":
-            for each in transforming_list:
-                # resetting factor
-                transformat = TransFormat(outs)
-                filename_extension = text_to_hex(
-                    extract_transforming_name(each["format_type"])
-                )
-                #
-                transformat.append_format(each)
-                transform = transformat.compose(format="yolo", min_vis=0.7)
-
-                dataset = TransPack(
-                    dataset_dir = f"{settings.MEDIA_ROOT}/datasets",
-                    transform = transform
-                )
-                
-                for image_filename, image, label_filename, bboxes in dataset:
-
-                    label_filename = f"{label_filename[:-4]}_{tag_ver}_{filename_extension}.txt"
-                    saved_label = label_outs / label_filename
-
-                    with open(saved_label, 'a') as label_file:
-                        for bbox in bboxes:
-                            label_file.write(f"{str(bbox[-1])} {str(bbox[0])} {str(bbox[1])} {str(bbox[2])} {str(bbox[3])}\n")
-
-                    image_filename = f"{image_filename[:-4]}_{tag_ver}_{filename_extension}.png"
-                    saved_image = image_outs / image_filename
-                    image = Image.fromarray(image)
-                    image.save(saved_image)
+            apply_transform(dataset_dir, transforming_option, transforming_list, outs)
 
 
-        # 2nd: all augments / 1 sample
-        if transform_option == "AllTrans":
-            transformat = TransFormat(outs)
-            filename_extension = []
-            for each in transforming_list:
-                filename_extension.append(extract_transforming_name(each["format_type"]))
-                transformat.append_format(each)
+        # 2. split into train (train_validate) & test
+        elif train_validate_testsize == 0 and test_testsize != 0:
+            train_validate_dir = outs / "train"
+            test_dir = outs / "test"
 
-            filename_extension = text_to_hex(", ".join(filename_extension))
-
-            print(filename_extension)
-
-            transform = transformat.compose(format="yolo", min_vis=0.7)
-
-            dataset = TransPack(
-                dataset_dir = f"{settings.MEDIA_ROOT}/datasets",
-                transform = transform
+            split_data(
+                base_dir = dataset_dir,
+                train_dir = train_validate_dir,
+                validate_dir = None,
+                test_dir = test_dir,
+                validate_size = train_validate_testsize,
+                test_size = test_testsize
             )
 
-            for image_filename, image, label_filename, bboxes in dataset:
-                label_filename = f"{label_filename[:-4]}_{tag_ver}_{filename_extension}.txt"
-                saved_label = label_outs / label_filename
+            apply_transform(dataset_dir, transforming_option, transforming_list, train_validate_dir)
 
-                with open(saved_label, 'a') as label_file:
-                    for bbox in bboxes:
-                        label_file.write(f"{str(bbox[-1])} {str(bbox[0])} {str(bbox[1])} {str(bbox[2])} {str(bbox[3])}\n")
+        # 3. split into train & validate
+        elif train_validate_testsize != 0 and test_testsize == 0:
+            train_dir = outs / "train"
+            validate_dir = outs / "validate"
 
-                image_filename = f"{image_filename[:-4]}_{tag_ver}_{filename_extension}.png"
-                saved_image = image_outs / image_filename
-                image = Image.fromarray(image)
-                image.save(saved_image)
+            split_data(
+                base_dir = dataset_dir,
+                train_dir = train_dir,
+                validate_dir = validate_dir,
+                test_dir = None,
+                validate_size = train_validate_testsize,
+                test_size = test_testsize, 
+            )
+
+            apply_transform(dataset_dir, transforming_option, transforming_list, train_dir)
+            apply_transform(dataset_dir, transforming_option, transforming_list, validate_dir)
+
+        # 4. split into train & validate & test
+        elif train_validate_testsize != 0 and test_testsize != 0:
+
+            train_dir = outs / "train"
+            validate_dir = outs / "validate"
+            test_dir = outs / "test"
+
+            split_data(
+                base_dir = dataset_dir,
+                train_dir = train_dir,
+                validate_dir = validate_dir,
+                test_dir = test_dir, 
+                validate_size = train_validate_testsize,
+                test_size = test_testsize,
+            )
+
+            apply_transform(dataset_dir, transforming_option, transforming_list, train_dir)
 
 
         return HttpResponse("Finish Augmentation!")
+    
     else:
         return HttpResponseRedirect('index')
     
 
-# helper function
-def text_to_hex(text):
-    # encode the text to bytes, then convert to hexadecimal
-    hex_output = text.encode("utf-8").hex()
-    return hex_output
 
 
-def extract_transforming_name(obj):
-    # Get the full class name
-    full_name = str(obj)
-    # Extract the class name
-    class_name = full_name.split('.')[-1].replace("'>", '')
-    return class_name
+
+
+
+
+        # There are two options for applying augmentation
+
+
+        # 1st: 1 augment / 1 sample
+        # if transform_option == "oneTrans":
+        #     for each in transforming_list:
+        #         # resetting factor
+        #         transformat = TransFormat(outs)
+        #         filename_extension = text_to_hex(
+        #             extract_transforming_name(each["format_type"])
+        #         )
+        #         #
+        #         transformat.append_format(each)
+        #         transform = transformat.compose(format="yolo", min_vis=0.7)
+
+        #         dataset = TransPack(
+        #             dataset_dir = f"{settings.MEDIA_ROOT}/datasets",
+        #             transform = transform
+        #         )
+                
+        #         for image_filename, image, label_filename, bboxes in dataset:
+
+        #             label_filename = f"{label_filename[:-4]}_{tag_ver}_{filename_extension}.txt"
+        #             saved_label = label_outs / label_filename
+
+        #             with open(saved_label, 'a') as label_file:
+        #                 for bbox in bboxes:
+        #                     label_file.write(f"{str(bbox[-1])} {str(bbox[0])} {str(bbox[1])} {str(bbox[2])} {str(bbox[3])}\n")
+
+        #             image_filename = f"{image_filename[:-4]}_{tag_ver}_{filename_extension}.png"
+        #             saved_image = image_outs / image_filename
+        #             image = Image.fromarray(image)
+        #             image.save(saved_image)
+
+
+        # # 2nd: all augments / 1 sample
+        # if transform_option == "AllTrans":
+        #     transformat = TransFormat(outs)
+        #     filename_extension = []
+        #     for each in transforming_list:
+        #         filename_extension.append(extract_transforming_name(each["format_type"]))
+        #         transformat.append_format(each)
+
+        #     filename_extension = text_to_hex(", ".join(filename_extension))
+
+        #     transform = transformat.compose(format="yolo", min_vis=0.7)
+
+        #     dataset = TransPack(
+        #         dataset_dir = f"{settings.MEDIA_ROOT}/datasets",
+        #         transform = transform
+        #     )
+
+        #     for image_filename, image, label_filename, bboxes in dataset:
+        #         label_filename = f"{label_filename[:-4]}_{tag_ver}_{filename_extension}.txt"
+        #         saved_label = label_outs / label_filename
+
+        #         with open(saved_label, 'a') as label_file:
+        #             for bbox in bboxes:
+        #                 label_file.write(f"{str(bbox[-1])} {str(bbox[0])} {str(bbox[1])} {str(bbox[2])} {str(bbox[3])}\n")
+
+        #         image_filename = f"{image_filename[:-4]}_{tag_ver}_{filename_extension}.png"
+        #         saved_image = image_outs / image_filename
+        #         image = Image.fromarray(image)
+        #         image.save(saved_image)
+
+

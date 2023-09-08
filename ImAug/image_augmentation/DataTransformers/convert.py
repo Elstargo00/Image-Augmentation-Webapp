@@ -8,6 +8,7 @@ class_info = {"dotted": 0, "body": 1, "marked": 2}
 
 def convert_to_yolo_format(datapath, json_file, output_dir):
 
+
     with open(json_file, 'r') as f:
         data = json.load(f)
     
