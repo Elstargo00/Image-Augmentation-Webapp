@@ -2,6 +2,8 @@
 
 The Image Augmentation App is a free, open-source tool developed for machine learning enthusiasts to augment their images. This application supports data splitting for training, validation, and testing sets, making it a versatile tool for image dataset preparation.
 
+![webapp_UI](https://github.com/Elstargo00/Image-Augmentation-Webapp/blob/main/ImgAug.png?raw=true)
+
 ## Features
 
 - **Data Splitting**: Efficiently divides your dataset into training, validation, and testing sets.
