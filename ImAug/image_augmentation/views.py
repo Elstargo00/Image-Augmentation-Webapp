@@ -158,7 +158,7 @@ def process_augmentation(request):
 
             apply_transform(dataset_dir, transforming_option, transforming_list, train_validate_dir)
 
-        # 3. split into train & validate
+        # 3. split into train & validate (Ultimate Training)
         elif train_validate_testsize != 0 and test_testsize == 0:
             train_dir = outs / "train"
             validate_dir = outs / "validate"
