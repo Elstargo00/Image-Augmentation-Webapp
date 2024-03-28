@@ -18,9 +18,22 @@ class TransPack(Dataset):
 
         images = os.listdir(self.images_dir)
         labels = os.listdir(self.labels_dir)
+
         images.sort()
         labels.sort()
+
+        if True and labels is None or len(images) != len(labels):
+            labels = labels + [None] * np.abs(len(images) - len(labels))
+
+        print(images)
+        print(labels)
+
         self.data += list(zip(images, labels))
+        
+        print("image and label pairs")
+        for img, label in self.data:
+            print(img, label)
+
 
 
     def __len__(self):
@@ -30,29 +43,34 @@ class TransPack(Dataset):
     def __getitem__(self, index):
 
         image_filename, label_filename = self.data[index]
+        print("image and label filename:", image_filename, label_filename)
         img = Image.open(self.images_dir / image_filename)
         img = np.array(img)
 
-        with open(self.labels_dir / label_filename) as file:
-            labels = file.readlines()
-            labels = [label.strip().split(" ") for label in labels]
-            bboxes = []
-            class_labels = []
+        bboxes = []
+        class_labels = []
 
+        if label_filename:
             print(label_filename)
+            label_path = self.labels_dir / label_filename
 
-            for label in labels:
-                # changable format
-                bboxes.append([float(param) for param in label[1:]] + [str(label[0])]) 
-                class_labels.append(str(label[0]))
+            with open(label_path) as file:
+                labels = file.readlines()
+                labels = [label.strip().split(" ") for label in labels]
 
-            if self.transform is not None:
-                augmentations = self.transform(image=img, bboxes=bboxes)
-                image = augmentations["image"]
-                bboxes = augmentations["bboxes"]
+                for label in labels:
+                    # changable format
+                    bboxes.append([float(param) for param in label[1:]] + [str(label[0])]) 
+                    class_labels.append(str(label[0]))
 
-            return image_filename, image, label_filename, bboxes
-            
+        if self.transform is not None:
+            augmentations = self.transform(image=img, bboxes=bboxes)
+            image = augmentations["image"]
+            bboxes = augmentations["bboxes"]
+
+        return image_filename, image, label_filename, bboxes
+    
+
 
 
 class TransFormat:
@@ -122,12 +140,19 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
             tag_ver = output_dir.parts[-1].split('_')[-1]
 
             for image_filename, image, label_filename, bboxes in dataset:
-                label_filename = f"{label_filename[: -4]}_{tag_ver}_{filename_extension}.txt"
-                saved_label = output_dir / "labels" / label_filename
+                print("AUGMENTED INFO (image_filename): ", image_filename)
+                print("AUGMENTED INFO (image) ", image)
+                print("AUGMENTED INFO (label_filename):", label_filename)
+                print("AUGMENTED INFO (bboxes): ", bboxes)
 
-                with open(saved_label, 'a') as label_file:
-                    for bbox in bboxes:
-                        label_file.write(f"{str(bbox[-1])} {str(bbox[0])} {str(bbox[1])} {str(bbox[2])} {str(bbox[3])}\n")
+                if label_filename:
+                    label_filename = f"{label_filename[: -4]}_{tag_ver}_{filename_extension}.txt"
+                    saved_label = output_dir / "labels" / label_filename
+                    print("IF AVAILABLE, FILE WILL BE SAVED AT", saved_label)
+
+                    with open(saved_label, 'a') as label_file:
+                        for bbox in bboxes:
+                            label_file.write(f"{str(bbox[-1])} { round(float(bbox[0]), 6) } { round(float(bbox[1]), 6) } { round(float(bbox[2]), 6) } { round(float(bbox[3]), 6) }\n")
 
                 image_filename = f"{image_filename[: -4]}_{tag_ver}_{filename_extension}.png"
                 saved_image = output_dir / "images" / image_filename
@@ -158,7 +183,7 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
 
             with open(saved_label, 'a') as label_file:
                 for bbox in bboxes:
-                    label_file.write(f"{str(bbox[-1])} {str(bbox[0])} {str(bbox[1])} {str(bbox[2])} {str(bbox[3])}\n")
+                    label_file.write(f"{str(bbox[-1])} { round(float(bbox[0]), 6) } { round(float(bbox[1]), 6) } { round(float(bbox[2]), 6) } { round(float(bbox[3]), 6) }\n")
 
             image_filename = f"{image_filename[: -4]}_{tag_ver}_{filename_extension}.png"
             saved_image = output_dir / "images" / image_filename

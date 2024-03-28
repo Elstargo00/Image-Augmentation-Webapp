@@ -20,8 +20,10 @@ def process_augmentation(request):
         transforming_list = []
         
         if bool(request.POST.get("affine")):
-            translate_percent = float(request.POST.get("affine_translate_percent")) # field check
-            p = float(request.POST.get("affine_p"))
+            translate_percent = request.POST.get("affine_translate_percent")
+            translate_percent = float(translate_percent) if translate_percent else 0 # field check
+            p = request.POST.get("affine_p")
+            p = float(p) if p else 0.5
             rotate = float(request.POST.get("affine_rotate"))
             shear = ast.literal_eval(request.POST.get("affine_shear"))
             if not p:
@@ -120,10 +122,13 @@ def process_augmentation(request):
             train_validate_testsize = 0
             test_testsize = 0
 
+        if request.POST.get("images_w_label_augmented"):
+            images_w_label_augmented = request.POST.get
+
 
         # _____ _____ setup augmented outputs _____ _____
         output_folder = request.POST.get("augmented_name")
-        tag_ver = request.POST.get("tag_version")
+        tag_ver = request.POST.get("tag_ver")
         if not output_folder:
             output_folder = "augmented"
         if not tag_ver:
