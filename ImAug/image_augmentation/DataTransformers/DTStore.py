@@ -9,7 +9,7 @@ import albumentations as A
 
 class TransPack(Dataset):
 
-    def __init__(self, dataset_dir="./datasets/", transform=None):
+    def __init__(self, dataset_dir="./datasets/", transform=None, with_label_augmented=False):
         self.data = []
         self.dataset_dir = Path(dataset_dir)
         self.transform = transform
@@ -21,8 +21,8 @@ class TransPack(Dataset):
 
         images.sort()
         labels.sort()
-
-        if True and labels is None or len(images) != len(labels):
+        print("IN TRANSPACK", with_label_augmented)
+        if (not with_label_augmented) and labels is None or len(images) != len(labels):
             labels = labels + [None] * np.abs(len(images) - len(labels))
 
         print(images)
@@ -123,7 +123,8 @@ class TransFormat:
 # Build a function
 def apply_transform(dataset_dir, transforming_option, transforming_list, output_dir):
 
-    if transforming_option == "oneTrans":
+    with_label_augmented, augmented_scheme = transforming_option
+    if augmented_scheme == "oneTrans":
         for each in transforming_list:
             transformat = TransFormat(output_dir)
             filename_extension = text_to_hex(
@@ -134,7 +135,8 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
 
             dataset = TransPack(
                 dataset_dir = dataset_dir,
-                transform = transform
+                transform = transform,
+                with_label_augmented= with_label_augmented,
             )
 
             tag_ver = output_dir.parts[-1].split('_')[-1]
@@ -160,7 +162,7 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
                 image.save(saved_image)
 
 
-    elif transforming_option == "allTrans":
+    elif augmented_scheme == "allTrans":
         transformat = TransFormat(output_dir)
         filename_extension = []
         for each in transforming_list:
@@ -172,18 +174,21 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
         
         dataset = TransPack(
             dataset_dir = dataset_dir,
-            transform = transform
+            transform = transform,
+            with_label_augmented = with_label_augmented
         )
 
         tag_ver = output_dir.parts[-1].split('_')[-1]
 
         for image_filename, image, label_filename, bboxes in dataset:
-            label_filename = f"{label_filename[: -4]}_{tag_ver}_{filename_extension}.txt"
-            saved_label = output_dir / "labels" / label_filename
+            if label_filename:
+                label_filename = f"{label_filename[: -4]}_{tag_ver}_{filename_extension}.txt"
+                saved_label = output_dir / "labels" / label_filename
 
-            with open(saved_label, 'a') as label_file:
-                for bbox in bboxes:
-                    label_file.write(f"{str(bbox[-1])} { round(float(bbox[0]), 6) } { round(float(bbox[1]), 6) } { round(float(bbox[2]), 6) } { round(float(bbox[3]), 6) }\n")
+
+                with open(saved_label, 'a') as label_file:
+                    for bbox in bboxes:
+                        label_file.write(f"{str(bbox[-1])} { round(float(bbox[0]), 6) } { round(float(bbox[1]), 6) } { round(float(bbox[2]), 6) } { round(float(bbox[3]), 6) }\n")
 
             image_filename = f"{image_filename[: -4]}_{tag_ver}_{filename_extension}.png"
             saved_image = output_dir / "images" / image_filename

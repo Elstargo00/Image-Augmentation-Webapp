@@ -9,6 +9,11 @@ from pathlib import Path
 from PIL import Image
 import ast
 
+from .AugParams.parameters import (get_affine_params, get_random_crop_params,
+                                   get_center_crop_params, get_horizontal_flip_params,
+                                   get_vertical_flip_params, get_togray_params,
+                                   get_gauss_noise_params)
+
 
 def index(request):
     return render(request, "image_augmentation/index.html")
@@ -18,16 +23,10 @@ def process_augmentation(request):
     if request.method == "POST":
 
         transforming_list = []
-        
-        if bool(request.POST.get("affine")):
-            translate_percent = request.POST.get("affine_translate_percent")
-            translate_percent = float(translate_percent) if translate_percent else 0 # field check
-            p = request.POST.get("affine_p")
-            p = float(p) if p else 0.5
-            rotate = float(request.POST.get("affine_rotate"))
-            shear = ast.literal_eval(request.POST.get("affine_shear"))
-            if not p:
-                p = 0.5
+
+        affine_params = get_affine_params(request)
+        if affine_params:
+            translate_percent, p, rotate, shear = affine_params
             transforming_list.append({
                 "format_type": A.Affine,
                 "params": {
@@ -38,67 +37,51 @@ def process_augmentation(request):
                 }
             })
 
-
-        if bool(request.POST.get("random_crop")):
-            width = int(float((request.POST.get("random_crop_width")))) # field check
-            height = int(float(request.POST.get("random_crop_height"))) # field check
-            p = float(request.POST.get("random_crop_p"))
-            if not p:
-                p = 0.5
+        random_crop_params = get_random_crop_params(request)
+        if random_crop_params:
+            width, height, p = random_crop_params
             transforming_list.append({
                 "format_type": A.RandomCrop,
                 "params": {"width": width, "height": height, "p": p}
             })
 
-
-        if bool(request.POST.get("center_crop")):
-            width = int(float(request.POST.get("center_crop_width"))) # field check
-            height = int(float(request.POST.get("center_crop_height"))) # field check
-            p = float(request.POST.get("center_crop_p"))
-            if not p:
-                p = 0.5
+        center_crop_params = get_center_crop_params(request)
+        if center_crop_params:
+            width, height, p = center_crop_params
             transforming_list.append({
                 "format_type": A.CenterCrop,
                 "params": {"width": width, "height": height, "p": p}
             })
 
-
-        if bool(request.POST.get("horizontal_flip")):
-            p = float(request.POST.get("horizontal_flip_p"))
-            if not p:
-                p = 0.5
+        horizontal_flip_params = get_horizontal_flip_params(request)
+        if horizontal_flip_params:
+            p = horizontal_flip_params
             transforming_list.append({
                 "format_type": A.HorizontalFlip,
                 "params": {"p": p}
             })
 
-
-        if bool(request.POST.get("vertical_flip")):
-            p = float(request.POST.get("vertical_flip_p"))
-            if not p:
-                p = 0.5
+        vertical_flip_params = get_vertical_flip_params(request)
+        if vertical_flip_params:
+            p = vertical_flip_params
             transforming_list.append({
                 "format_type": A.VerticalFlip,
                 "params": {'p': p}
             })
 
-        if bool(request.POST.get("togray")):
-            p = float(request.POST.get("togray_p"))
-            if not p:
-                p = 0.5
+
+        togray_params = get_togray_params(request)
+        if togray_params:
+            p = togray_params
             transforming_list.append({
                 "format_type": A.ToGray,
                 "params": {'p': p}
             })
 
-        if bool(request.POST.get("gauss_noise")):
-            p = float(request.POST.get("gauss_noise_p"))
-            if not p:
-                p = 0.5
-            mean = float(request.POST.get("gauss_noise_mean"))
-            if not mean:
-                mean = 0
-            var_limit = float(request.POST.get("gauss_noise_var"))
+
+        gauss_noise_params = get_gauss_noise_params(request)
+        if gauss_noise_params:
+            p, mean, var_limit = gauss_noise_params
             transforming_list.append({
                 "format_type": A.GaussNoise,
                 "params": {'p': p, "mean": mean, "var_limit": var_limit}
@@ -122,9 +105,11 @@ def process_augmentation(request):
             train_validate_testsize = 0
             test_testsize = 0
 
-        if request.POST.get("images_w_label_augmented"):
-            images_w_label_augmented = request.POST.get
-
+        if request.POST.get("with_label_augmented"):
+            with_label_augmented = request.POST.get("with_label_augmented")
+            with_label_augmented = bool(with_label_augmented)
+        else:
+            with_label_augmented = False
 
         # _____ _____ setup augmented outputs _____ _____
         output_folder = request.POST.get("augmented_name")
@@ -137,7 +122,10 @@ def process_augmentation(request):
 
         dataset_dir = Path(f"{settings.MEDIA_ROOT}/datasets")
 
-        transforming_option = request.POST.get("TransformOption")
+        augmented_scheme = request.POST.get("AugmentedScheme")
+        print(augmented_scheme)
+        transforming_option = [with_label_augmented, augmented_scheme]
+        print("transforming_option", transforming_option)
 
         # Generate directory according to the split params
         # 1. no split
@@ -204,76 +192,5 @@ def process_augmentation(request):
     else:
         return HttpResponseRedirect('index')
     
-
-
-
-
-
-
-
-        # There are two options for applying augmentation
-
-
-        # 1st: 1 augment / 1 sample
-        # if transform_option == "oneTrans":
-        #     for each in transforming_list:
-        #         # resetting factor
-        #         transformat = TransFormat(outs)
-        #         filename_extension = text_to_hex(
-        #             extract_transforming_name(each["format_type"])
-        #         )
-        #         #
-        #         transformat.append_format(each)
-        #         transform = transformat.compose(format="yolo", min_vis=0.7)
-
-        #         dataset = TransPack(
-        #             dataset_dir = f"{settings.MEDIA_ROOT}/datasets",
-        #             transform = transform
-        #         )
-                
-        #         for image_filename, image, label_filename, bboxes in dataset:
-
-        #             label_filename = f"{label_filename[:-4]}_{tag_ver}_{filename_extension}.txt"
-        #             saved_label = label_outs / label_filename
-
-        #             with open(saved_label, 'a') as label_file:
-        #                 for bbox in bboxes:
-        #                     label_file.write(f"{str(bbox[-1])} {str(bbox[0])} {str(bbox[1])} {str(bbox[2])} {str(bbox[3])}\n")
-
-        #             image_filename = f"{image_filename[:-4]}_{tag_ver}_{filename_extension}.png"
-        #             saved_image = image_outs / image_filename
-        #             image = Image.fromarray(image)
-        #             image.save(saved_image)
-
-
-        # # 2nd: all augments / 1 sample
-        # if transform_option == "AllTrans":
-        #     transformat = TransFormat(outs)
-        #     filename_extension = []
-        #     for each in transforming_list:
-        #         filename_extension.append(extract_transforming_name(each["format_type"]))
-        #         transformat.append_format(each)
-
-        #     filename_extension = text_to_hex(", ".join(filename_extension))
-
-        #     transform = transformat.compose(format="yolo", min_vis=0.7)
-
-        #     dataset = TransPack(
-        #         dataset_dir = f"{settings.MEDIA_ROOT}/datasets",
-        #         transform = transform
-        #     )
-
-        #     for image_filename, image, label_filename, bboxes in dataset:
-        #         label_filename = f"{label_filename[:-4]}_{tag_ver}_{filename_extension}.txt"
-        #         saved_label = label_outs / label_filename
-
-        #         with open(saved_label, 'a') as label_file:
-        #             for bbox in bboxes:
-        #                 label_file.write(f"{str(bbox[-1])} {str(bbox[0])} {str(bbox[1])} {str(bbox[2])} {str(bbox[3])}\n")
-
-        #         image_filename = f"{image_filename[:-4]}_{tag_ver}_{filename_extension}.png"
-        #         saved_image = image_outs / image_filename
-        #         image = Image.fromarray(image)
-        #         image.save(saved_image)
 
 
