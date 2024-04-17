@@ -9,10 +9,10 @@ from pathlib import Path
 from PIL import Image
 import ast
 
-from .AugParams.parameters import (get_affine_params, get_random_crop_params,
-                                   get_center_crop_params, get_horizontal_flip_params,
-                                   get_vertical_flip_params, get_togray_params,
-                                   get_gauss_noise_params)
+from .AugParams.parameters import (get_affine_params, get_locate_crop_params,
+                                   get_random_crop_params, get_center_crop_params, 
+                                   get_horizontal_flip_params, get_vertical_flip_params,
+                                   get_togray_params, get_gauss_noise_params)
 
 
 def index(request):
@@ -35,6 +35,17 @@ def process_augmentation(request):
                     "rotate": rotate,
                     "shear": shear
                 }
+            })
+
+        locate_crop_params = get_locate_crop_params(request)
+        if locate_crop_params:
+            x_min, y_min, x_max, y_max, p = locate_crop_params
+            always_apply = True if int(p) == 1 else False
+            print("always_apply", always_apply)
+            transforming_list.append({
+                "format_type":A.Crop,
+                "params": {"x_min": x_min, "y_min": y_min, "x_max": x_max, "y_max": y_max,
+                           "always_apply": always_apply, "p": p}
             })
 
         random_crop_params = get_random_crop_params(request)
@@ -123,9 +134,7 @@ def process_augmentation(request):
         dataset_dir = Path(f"{settings.MEDIA_ROOT}/datasets")
 
         augmented_scheme = request.POST.get("AugmentedScheme")
-        print(augmented_scheme)
         transforming_option = [with_label_augmented, augmented_scheme]
-        print("transforming_option", transforming_option)
 
         # Generate directory according to the split params
         # 1. no split

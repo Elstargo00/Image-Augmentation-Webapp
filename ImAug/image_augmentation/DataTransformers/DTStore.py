@@ -21,12 +21,12 @@ class TransPack(Dataset):
 
         images.sort()
         labels.sort()
-        print("IN TRANSPACK", with_label_augmented)
+        
         if (not with_label_augmented) and labels is None or len(images) != len(labels):
             labels = labels + [None] * np.abs(len(images) - len(labels))
 
-        print(images)
-        print(labels)
+
+
 
         self.data += list(zip(images, labels))
         
@@ -34,6 +34,18 @@ class TransPack(Dataset):
         for img, label in self.data:
             print(img, label)
 
+    def validate_and_correct_bbox(self, bbox):
+        x_min, y_min, x_max, y_max, label = bbox
+        epsilon = 1e-6  # Define a tolerance
+        x_min = 0.0 if -epsilon < x_min < epsilon else x_min
+        y_min = 0.0 if -epsilon < y_min < epsilon else y_min
+        x_max = 0.0 if -epsilon < x_max < epsilon else x_max
+        y_max = 0.0 if -epsilon < y_max < epsilon else y_max
+        x_min = max(0.0, min(1.0, round(x_min, 6)))
+        y_min = max(0.0, min(1.0, round(y_min, 6)))
+        x_max = max(0.0, min(1.0, round(x_max, 6)))
+        y_max = max(0.0, min(1.0, round(y_max, 6)))
+        return (x_min, y_min, x_max, y_max, label)
 
 
     def __len__(self):
@@ -60,10 +72,13 @@ class TransPack(Dataset):
 
                 for label in labels:
                     # changable format
-                    bboxes.append([float(param) for param in label[1:]] + [str(label[0])]) 
+                    bbox = [float(param) for param in label[1:]] + [str(label[0])]
+                    validated_bbox = self.validate_and_correct_bbox(bbox)
+                    bboxes.append(validated_bbox) 
                     class_labels.append(str(label[0]))
 
         if self.transform is not None:
+            # Log bboxes to confirm their values are within the expected range
             augmentations = self.transform(image=img, bboxes=bboxes)
             image = augmentations["image"]
             bboxes = augmentations["bboxes"]
@@ -142,15 +157,10 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
             tag_ver = output_dir.parts[-1].split('_')[-1]
 
             for image_filename, image, label_filename, bboxes in dataset:
-                print("AUGMENTED INFO (image_filename): ", image_filename)
-                print("AUGMENTED INFO (image) ", image)
-                print("AUGMENTED INFO (label_filename):", label_filename)
-                print("AUGMENTED INFO (bboxes): ", bboxes)
 
                 if label_filename:
                     label_filename = f"{label_filename[: -4]}_{tag_ver}_{filename_extension}.txt"
                     saved_label = output_dir / "labels" / label_filename
-                    print("IF AVAILABLE, FILE WILL BE SAVED AT", saved_label)
 
                     with open(saved_label, 'a') as label_file:
                         for bbox in bboxes:

@@ -22,6 +22,29 @@ def get_affine_params(request):
     return translate_percent, p, rotate, shear
 
 
+def get_locate_crop_params(request):
+
+    if not bool(request.POST.get("locate_crop")):
+        return None
+    
+    # Croping x min
+    x_min = request.POST.get("locate_crop_x_min")
+    x_min = int(ast.literal_eval(x_min)) if x_min else 0
+    # Croping y min
+    y_min = request.POST.get("locate_crop_y_min")
+    y_min = int(ast.literal_eval(y_min)) if y_min else 0
+    # Croping x max
+    x_max = request.POST.get("locate_crop_x_max")
+    x_max = int(ast.literal_eval(x_max)) if x_max else 0
+    # Croping y min
+    y_max = request.POST.get("locate_crop_y_max")
+    y_max = int(ast.literal_eval(y_max)) if y_max else 0
+    # Apply probability
+    p = request.POST.get("locate_crop_p")
+    p = float(ast.literal_eval(p)) if p else 0.5
+
+    return x_min, y_min, x_max, y_max, p
+
 def get_random_crop_params(request):
 
     if not bool(request.POST.get("random_crop")):

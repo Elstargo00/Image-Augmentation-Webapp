@@ -65,6 +65,52 @@
 
                 <div class="container">
                     <hr>
+                    <label for="locate_crop">Locate Crop:</label>
+                    <input type="checkbox" name="locate_crop" id="locate_crop" value="True">
+                    
+                    <div id="locate_crop_params" style="display: none">
+                        <ul>
+                            <li>
+                                <label for="locate_crop_x_min">X min:</label>
+                                <input type="text" name="locate_crop_x_min" id="locate_crop_x_min" placeholder="Minimum upper left x coordinate">
+                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
+                                    title="The cropping x min">
+                                </i>
+                            </li>
+                            <li>
+                                <label for="locate_crop_y_min">Y min:</label>
+                                <input type="text" name="locate_crop_y_min" id="locate_crop_y_min" placeholder="Minimum upper left y coordinate">
+                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
+                                    title="The cropping y min">
+                                </i>
+                            </li>
+                            <li>
+                                <label for="locate_crop_x_max">X max:</label>
+                                <input type="text" name="locate_crop_x_max" id="locate_crop_x_max" placeholder="Maximum lower right x coordinate">
+                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
+                                    title="The cropping x max">
+                                </i>
+                            </li>
+                            <li>
+                                <label for="locate_crop_y_max">Y max:</label>
+                                <input type="text" name="locate_crop_y_max" id="locate_crop_y_max" placeholder="Maximum lower right y coordinate">
+                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
+                                    title="The cropping y max">
+                                </i>
+                            </li>
+                            <li>
+                                <label for="locate_crop_p">p:</label>
+                                <input type="text" name="locate_crop_p" id="locate_crop_p" placeholder="probability [0 to 1]">
+                                <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
+                                    title="The percentage of feature applied on the sample">
+                                </i>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <hr>
                     <label for="random_crop">Random Crop:</label>
                     <input type="checkbox" name="random_crop" id="random_crop" value="True">
                     
@@ -88,13 +134,12 @@
                                 <label for="random_crop_p">p:</label>
                                 <input type="text" name="random_crop_p" id="random_crop_p" placeholder="probability [0 to 1]">
                                 <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The percentage of feature application on the sample">
+                                    title="The percentage of feature applied on the sample">
                                 </i>
                             </li>
                         </ul>
                     </div>
                 </div>
-
 
                 <div class="container">
                     <hr>
@@ -121,7 +166,7 @@
                                 <label for="center_crop_p">p:</label>
                                 <input type="text" name="center_crop_p" id="center_crop_p" placeholder="probability [0 to 1]">
                                 <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The percentage of feature application on the sample">
+                                    title="The percentage of feature applied on the sample">
                                 </i>
                             </li>
                         </ul>
@@ -139,7 +184,7 @@
                                 <label for="horizontal_flip_p">p:</label>
                                 <input type="text" name="horizontal_flip_p" id="horizontal_flip_p" placeholder="probability [0 to 1]">
                                 <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The percentage of feature application on the sample">
+                                    title="The percentage of feature applied on the sample">
                                 </i>
                             </li>
                         </ul> 
@@ -157,7 +202,7 @@
                                 <label for="vertical_flip_p">p:</label>
                                 <input type="text" name="vertical_flip_p" id="vertical_flip_p" placeholder="probability [0 to 1]">
                                 <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The percentage of feature application on the sample">
+                                    title="The percentage of feature applied on the sample">
                                 </i>
                             </li>
                         </ul>
@@ -176,7 +221,7 @@
                                 <label for="togray_p">p:</label>
                                 <input type="text" name="togray_p" id="togray_p" placeholder="probability [0 to 1]">
                                 <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The percentage of feature application on the sample">
+                                    title="The percentage of feature applied on the sample">
                                 </i>
                             </li>
                         </ul>
@@ -195,7 +240,7 @@
                                 <label for="gauss_noise_p">p:</label>
                                 <input type="text" name="gauss_noise_p" id="gauss_noise_p" placeholder="probability [0 to 1]">
                                 <i class="fas fa-exclamation-circle" data-toggle="tooltip" data-placement="right"
-                                    title="The percentage of feature application on the sample">
+                                    title="The percentage of feature applied on the sample">
                                 </i>
                             </li>
                             <li>
@@ -289,7 +334,7 @@
 
             var element_ids = [
                 "affine", "random_crop", "center_crop", "horizontal_flip",
-                "vertical_flip", "togray", "gauss_noise", "split_data"
+                "vertical_flip", "togray", "gauss_noise", "split_data", "locate_crop"
             ]
 
             for (element_id of element_ids){
