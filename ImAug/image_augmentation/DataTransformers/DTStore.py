@@ -4,7 +4,6 @@ from pathlib import Path
 import os
 from PIL import Image
 import numpy as np
-
 import albumentations as A
 
 class TransPack(Dataset):
@@ -25,27 +24,51 @@ class TransPack(Dataset):
         if (not with_label_augmented) and labels is None or len(images) != len(labels):
             labels = labels + [None] * np.abs(len(images) - len(labels))
 
-
-
-
         self.data += list(zip(images, labels))
         
         print("image and label pairs")
         for img, label in self.data:
             print(img, label)
 
+
+    
     def validate_and_correct_bbox(self, bbox):
-        x_min, y_min, x_max, y_max, label = bbox
-        epsilon = 1e-6  # Define a tolerance
-        x_min = 0.0 if -epsilon < x_min < epsilon else x_min
-        y_min = 0.0 if -epsilon < y_min < epsilon else y_min
-        x_max = 0.0 if -epsilon < x_max < epsilon else x_max
-        y_max = 0.0 if -epsilon < y_max < epsilon else y_max
-        x_min = max(0.0, min(1.0, round(x_min, 6)))
-        y_min = max(0.0, min(1.0, round(y_min, 6)))
-        x_max = max(0.0, min(1.0, round(x_max, 6)))
-        y_max = max(0.0, min(1.0, round(y_max, 6)))
-        return (x_min, y_min, x_max, y_max, label)
+        x_c, y_c, width, height, label = map(float, bbox)
+
+        epsilon = 1e-6  # Small positive value to avoid exactly zero
+
+        # Calculate half width and height for further adjustments
+        w_half = width / 2
+        h_half = height / 2
+
+        # Calculate x_min and x_max, y_min and y_max
+        x_min = x_c - w_half
+        y_min = y_c - h_half
+        x_max = x_c + w_half
+        y_max = y_c + h_half
+
+        # Clip the coordinates so they are within bounds, instead of shrinking
+        x_min = max(0, x_min)
+        y_min = max(0, y_min)
+        x_max = min(1, x_max)
+        y_max = min(1, y_max)
+
+        # Calculate the new width and height based on the clipped coordinates
+        new_width = x_max - x_min
+        new_height = y_max - y_min
+
+        # Ensure that the width and height are above a small threshold (epsilon)
+        new_width = max(epsilon, new_width)
+        new_height = max(epsilon, new_height)
+
+        # Recalculate the new center
+        new_x_c = x_min + new_width / 2
+        new_y_c = y_min + new_height / 2
+
+        # Return the corrected values
+        return [new_x_c, new_y_c, new_width, new_height, int(label)]
+
+
 
 
     def __len__(self):
@@ -58,7 +81,7 @@ class TransPack(Dataset):
         print("image and label filename:", image_filename, label_filename)
         img = Image.open(self.images_dir / image_filename)
         img = np.array(img)
-
+        
         bboxes = []
         class_labels = []
 
@@ -120,7 +143,7 @@ class TransFormat:
         self.transforming_format.append(trans_format)
         
 
-    def compose(self, format="yolo", min_vis=0.8):
+    def compose(self, format="yolo", min_vis=0.7):
         composed = A.Compose(
             self.transforming_format,
             bbox_params = A.BboxParams(
