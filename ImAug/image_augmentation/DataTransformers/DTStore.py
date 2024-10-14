@@ -169,7 +169,7 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
                 extract_transforming_name(each["format_type"])
             )
             transformat.append_format(each)
-            transform = transformat.compose(format="yolo", min_vis=0.7)
+            transform = transformat.compose(format="yolo", min_vis=1)
 
             dataset = TransPack(
                 dataset_dir = dataset_dir,
@@ -203,7 +203,7 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
             transformat.append_format(each)
         
         filename_extension = text_to_hex(", ".join(filename_extension))
-        transform = transformat.compose(format="yolo", min_vis=0.7)
+        transform = transformat.compose(format="yolo", min_vis=1)
         
         dataset = TransPack(
             dataset_dir = dataset_dir,
