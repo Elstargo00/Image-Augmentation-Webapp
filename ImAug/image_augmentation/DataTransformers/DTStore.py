@@ -21,8 +21,39 @@ class TransPack(Dataset):
         images.sort()
         labels.sort()
         
-        if (not with_label_augmented) and labels is None or len(images) != len(labels):
+        # if (not with_label_augmented) and labels is None or len(images) != len(labels):
+        #     labels = labels + [None] * np.abs(len(images) - len(labels))
+        
+        if with_label_augmented:
+            non_empty_labels_rootname = []
+            selected_labels = []
+            for label in labels:
+                label_filepath = os.path.join(self.labels_dir, label)
+                
+                with open(label_filepath, 'r') as lab_file:
+                    lab_content = lab_file.read()
+                    
+                if not lab_content:
+                    continue
+                
+                rootname, _ = os.path.splitext(label_filepath)
+                
+                non_empty_labels_rootname.append(os.path.basename(rootname))
+                selected_labels.append(label)
+                
+            print(non_empty_labels_rootname)
+                
+            image_selected_index = np.isin(list(map(os.path.splitext, images)), non_empty_labels_rootname)
+
+            images = list(np.array(images)[image_selected_index[:, 0]])
+            labels = selected_labels.copy()
+            print("IMAGES: ", images)
+            print("LABELS: ", labels)
+            
+        else:
             labels = labels + [None] * np.abs(len(images) - len(labels))
+            
+                
 
         self.data += list(zip(images, labels))
         
