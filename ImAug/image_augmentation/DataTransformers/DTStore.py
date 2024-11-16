@@ -1,5 +1,5 @@
 from torch.utils.data import Dataset
-from .utils import text_to_hex, extract_transforming_name
+from .utils import text_to_hex, extract_transforming_name, save_image
 from pathlib import Path
 import os
 from PIL import Image
@@ -21,9 +21,6 @@ class TransPack(Dataset):
         images.sort()
         labels.sort()
         
-        # if (not with_label_augmented) and labels is None or len(images) != len(labels):
-        #     labels = labels + [None] * np.abs(len(images) - len(labels))
-        
         if with_label_augmented:
             non_empty_labels_rootname = []
             selected_labels = []
@@ -40,24 +37,20 @@ class TransPack(Dataset):
                 
                 non_empty_labels_rootname.append(os.path.basename(rootname))
                 selected_labels.append(label)
-                
-            print(non_empty_labels_rootname)
-                
+                                
             image_selected_index = np.isin(list(map(os.path.splitext, images)), non_empty_labels_rootname)
 
             images = list(np.array(images)[image_selected_index[:, 0]])
             labels = selected_labels.copy()
-            print("IMAGES: ", images)
-            print("LABELS: ", labels)
+
             
         else:
             labels = labels + [None] * np.abs(len(images) - len(labels))
-            
-                
+             
 
         self.data += list(zip(images, labels))
         
-        print("image and label pairs")
+        print("Image and label pairs: ")
         for img, label in self.data:
             print(img, label)
 
@@ -68,11 +61,9 @@ class TransPack(Dataset):
 
         epsilon = 1e-6  # Small positive value to avoid exactly zero
 
-        # Calculate half width and height for further adjustments
         w_half = width / 2
         h_half = height / 2
 
-        # Calculate x_min and x_max, y_min and y_max
         x_min = x_c - w_half
         y_min = y_c - h_half
         x_max = x_c + w_half
@@ -84,19 +75,15 @@ class TransPack(Dataset):
         x_max = min(1, x_max)
         y_max = min(1, y_max)
 
-        # Calculate the new width and height based on the clipped coordinates
         new_width = x_max - x_min
         new_height = y_max - y_min
 
-        # Ensure that the width and height are above a small threshold (epsilon)
         new_width = max(epsilon, new_width)
         new_height = max(epsilon, new_height)
 
-        # Recalculate the new center
         new_x_c = x_min + new_width / 2
         new_y_c = y_min + new_height / 2
 
-        # Return the corrected values
         return [new_x_c, new_y_c, new_width, new_height, int(label)]
 
 
@@ -132,7 +119,6 @@ class TransPack(Dataset):
                     class_labels.append(str(label[0]))
 
         if self.transform is not None:
-            # Log bboxes to confirm their values are within the expected range
             augmentations = self.transform(image=img, bboxes=bboxes)
             image = augmentations["image"]
             bboxes = augmentations["bboxes"]
@@ -184,9 +170,6 @@ class TransFormat:
         )
         return composed
     
-    
-    
-
 
 # _____________________________________________________________________________
 # Build a function
@@ -196,7 +179,7 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
     if augmented_scheme == "oneTrans":
         for each in transforming_list:
             transformat = TransFormat(output_dir)
-            filename_extension = text_to_hex(
+            transforming_type_extension = text_to_hex(
                 extract_transforming_name(each["format_type"])
             )
             transformat.append_format(each)
@@ -213,27 +196,31 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
             for image_filename, image, label_filename, bboxes in dataset:
 
                 if label_filename:
-                    label_filename = f"{label_filename[: -4]}_{tag_ver}_{filename_extension}.txt"
+                    label_fn, label_ext = os.path.splitext(label_filename)
+                    label_filename = f"{label_fn}_{tag_ver}_{transforming_type_extension}{label_ext}"
                     saved_label = output_dir / "labels" / label_filename
 
                     with open(saved_label, 'a') as label_file:
                         for bbox in bboxes:
                             label_file.write(f"{str(bbox[-1])} { round(float(bbox[0]), 6) } { round(float(bbox[1]), 6) } { round(float(bbox[2]), 6) } { round(float(bbox[3]), 6) }\n")
 
-                image_filename = f"{image_filename[: -4]}_{tag_ver}_{filename_extension}.png"
+                
+                image_fn, image_ext = os.path.splitext(image_filename)
+                image_filename = f"{image_fn}_{tag_ver}_{transforming_type_extension}{image_ext}"
                 saved_image = output_dir / "images" / image_filename
-                image = Image.fromarray(image)
-                image.save(saved_image)
+                
+                save_image(image, saved_image)                
+
 
 
     elif augmented_scheme == "allTrans":
         transformat = TransFormat(output_dir)
-        filename_extension = []
+        transforming_type_extension = []
         for each in transforming_list:
-            filename_extension.append(extract_transforming_name(each["format_type"]))
+            transforming_type_extension.append(extract_transforming_name(each["format_type"]))
             transformat.append_format(each)
         
-        filename_extension = text_to_hex(", ".join(filename_extension))
+        transforming_type_extension = text_to_hex(", ".join(transforming_type_extension))
         transform = transformat.compose(format="yolo", min_vis=1)
         
         dataset = TransPack(
@@ -246,7 +233,8 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
 
         for image_filename, image, label_filename, bboxes in dataset:
             if label_filename:
-                label_filename = f"{label_filename[: -4]}_{tag_ver}_{filename_extension}.txt"
+                label_fn, label_ext = os.path.splitext(label_filename)
+                label_filename = f"{label_fn}_{tag_ver}_{transforming_type_extension}{label_ext}"
                 saved_label = output_dir / "labels" / label_filename
 
 
@@ -254,7 +242,7 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
                     for bbox in bboxes:
                         label_file.write(f"{str(bbox[-1])} { round(float(bbox[0]), 6) } { round(float(bbox[1]), 6) } { round(float(bbox[2]), 6) } { round(float(bbox[3]), 6) }\n")
 
-            image_filename = f"{image_filename[: -4]}_{tag_ver}_{filename_extension}.png"
+            image_fn, image_ext = os.path.splitext(image_filename)
+            image_filename = f"{image_fn}_{tag_ver}_{transforming_type_extension}{image_ext}"
             saved_image = output_dir / "images" / image_filename
-            image = Image.fromarray(image)
-            image.save(saved_image)
+            save_image(image, saved_image)         
