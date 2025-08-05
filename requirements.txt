@@ -2,3 +2,4 @@ django==3.2.18
 albumentations
 torch
 torchvision
+scikit-learn

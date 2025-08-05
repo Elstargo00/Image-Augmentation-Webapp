@@ -45,14 +45,23 @@ class TransPack(Dataset):
 
             
         else:
-            labels = labels + [None] * np.abs(len(images) - len(labels))
+            # Match images with their corresponding labels by filename
+            matched_labels = []
+            for image in images:
+                image_base = os.path.splitext(image)[0]
+                label_found = False
+                for label in labels:
+                    label_base = os.path.splitext(label)[0]
+                    if image_base == label_base:
+                        matched_labels.append(label)
+                        label_found = True
+                        break
+                if not label_found:
+                    matched_labels.append(None)
+            labels = matched_labels
              
 
         self.data += list(zip(images, labels))
-        
-        print("Image and label pairs: ")
-        for img, label in self.data:
-            print(img, label)
 
 
     
@@ -96,7 +105,6 @@ class TransPack(Dataset):
     def __getitem__(self, index):
 
         image_filename, label_filename = self.data[index]
-        print("image and label filename:", image_filename, label_filename)
         img = Image.open(self.images_dir / image_filename)
         img = np.array(img)
         
@@ -104,7 +112,6 @@ class TransPack(Dataset):
         class_labels = []
 
         if label_filename:
-            print(label_filename)
             label_path = self.labels_dir / label_filename
 
             with open(label_path) as file:
@@ -119,9 +126,11 @@ class TransPack(Dataset):
                     class_labels.append(str(label[0]))
 
         if self.transform is not None:
-            augmentations = self.transform(image=img, bboxes=bboxes)
+            augmentations = self.transform(image=img, bboxes=bboxes, class_labels=class_labels)
             image = augmentations["image"]
             bboxes = augmentations["bboxes"]
+            if "class_labels" in augmentations:
+                class_labels = augmentations["class_labels"]
 
         return image_filename, image, label_filename, bboxes
     
@@ -165,7 +174,8 @@ class TransFormat:
             self.transforming_format,
             bbox_params = A.BboxParams(
                 format = format,
-                min_visibility = min_vis
+                min_visibility = min_vis,
+                label_fields = ['class_labels']
             )
         )
         return composed
@@ -176,6 +186,12 @@ class TransFormat:
 def apply_transform(dataset_dir, transforming_option, transforming_list, output_dir):
 
     with_label_augmented, augmented_scheme = transforming_option
+    
+    # Ensure output directories exist
+    image_outs = output_dir / "images"
+    label_outs = output_dir / "labels"
+    image_outs.mkdir(parents=True, exist_ok=True)
+    label_outs.mkdir(parents=True, exist_ok=True)
     if augmented_scheme == "oneTrans":
         for each in transforming_list:
             transformat = TransFormat(output_dir)
@@ -183,7 +199,7 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
                 extract_transforming_name(each["format_type"])
             )
             transformat.append_format(each)
-            transform = transformat.compose(format="yolo", min_vis=1)
+            transform = transformat.compose(format="yolo", min_vis=0.0)
 
             dataset = TransPack(
                 dataset_dir = dataset_dir,
@@ -202,7 +218,7 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
 
                     with open(saved_label, 'a') as label_file:
                         for bbox in bboxes:
-                            label_file.write(f"{str(bbox[-1])} { round(float(bbox[0]), 6) } { round(float(bbox[1]), 6) } { round(float(bbox[2]), 6) } { round(float(bbox[3]), 6) }\n")
+                            label_file.write(f"{int(float(bbox[-1]))} { round(float(bbox[0]), 6) } { round(float(bbox[1]), 6) } { round(float(bbox[2]), 6) } { round(float(bbox[3]), 6) }\n")
 
                 
                 image_fn, image_ext = os.path.splitext(image_filename)
@@ -221,7 +237,7 @@ def apply_transform(dataset_dir, transforming_option, transforming_list, output_
             transformat.append_format(each)
         
         transforming_type_extension = text_to_hex(", ".join(transforming_type_extension))
-        transform = transformat.compose(format="yolo", min_vis=1)
+        transform = transformat.compose(format="yolo", min_vis=0.0)
         
         dataset = TransPack(
             dataset_dir = dataset_dir,
