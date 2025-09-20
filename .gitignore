@@ -2,3 +2,5 @@ __pycache__/
 venv/
 db.sqlite3
 ImAug/media/
+.env
+logs.txt
