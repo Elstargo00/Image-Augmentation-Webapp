@@ -3,3 +3,4 @@ albumentations
 torch
 torchvision
 scikit-learn
+legacy-cgi

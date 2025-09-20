@@ -1,0 +1,12 @@
+services:
+  img-aug:
+    build: .
+    container_name: img-aug
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      DJANGO_DEBUG: ${DJANGO_DEBUG}
+    env_file:
+      - .env
